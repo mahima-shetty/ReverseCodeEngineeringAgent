@@ -136,6 +136,7 @@ def _markdown_report_to_flat(
         "security_issues": json.dumps([]),
         "antipatterns": json.dumps([]),
         "refactor_recommendations": json.dumps([]),
+        "jira_tickets": json.dumps([]),
     }
 
 
@@ -226,7 +227,28 @@ def _build_request_body(
 
     Set BLUEVERSE_USE_MESSAGES=1 to use legacy PRD {messages:[...]} shape instead.
     """
-    user_block = f"Language: {language or 'auto'}\n\nCode to analyze:\n{code}"
+    try:
+        from rag_store import get_rag_context
+        rag_context = get_rag_context(code[:2000])
+    except ImportError:
+        rag_context = ""
+
+    instruction_block = (
+        "Perform highest-impact feature upgrades as per the user's PRD:\n"
+        "1. PR/Diff Review Mode: analyze before vs after changes (if diff is provided), show risk delta and suggested reviewer comments.\n"
+        "2. Multi-file dependency analysis: trace calls and data flow across SQL + script + config files if provided.\n"
+        "3. Actionable outputs: return a list of Jira-ready tickets in a new JSON array field called 'jira_tickets'. Each item should be {'title': '...', 'description': '...', 'story_points': 5, 'type': 'Bug'}.\n"
+        "4. Confidence + evidence: for every finding (security_issues, antipatterns, refactor_recommendations), include a 'confidence_score' (1-100) and an 'evidence' field with a code excerpt and standard reference.\n"
+        "5. RAG on org standards: strictly apply the coding standards (provided below) and score each finding against them.\n"
+        "CRITICAL: Output ONLY valid JSON. Your response must be parseable by json.loads(). Do NOT wrap in ```json or markdown.\n"
+        "Mandatory JSON keys: 'summary_oneliner', 'summary_complexity', 'summary_risk', 'functional_purpose', 'business_logic', 'side_effects', 'functional_inputs', 'functional_outputs', 'dataflow_steps', 'complexity_score', 'security_score', 'security_issues', 'antipatterns', 'refactor_recommendations', 'jira_tickets'.\n"
+        "All lists (security_issues, antipatterns, etc.) must be JSON arrays of strictly formatted objects mapping matching the requested keys.\n"
+        "TOKEN LIMIT ALERT: Keep all textual descriptions EXTREMELY brief (1 sentence max). Limit lists to maximum 2 items each (max 2 tickets, max 2 security issues) to ensure your JSON output is not truncated!\n\n"
+    )
+    if rag_context:
+        instruction_block += f"Org Standards (RAG Retrieved Context):\n{rag_context}\n\n"
+
+    user_block = f"Language: {language or 'auto'}\n\n{instruction_block}Code to analyze:\n{code}"
 
     if _env("BLUEVERSE_USE_MESSAGES") in ("1", "true", "yes"):
         body: dict[str, Any] = {
@@ -279,6 +301,7 @@ def _fallback_flat_from_error(lines_of_code: int, message: str) -> dict[str, Any
         ),
         "antipatterns": json.dumps([]),
         "refactor_recommendations": json.dumps([]),
+        "jira_tickets": json.dumps([]),
     }
 
 

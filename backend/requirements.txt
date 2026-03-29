@@ -3,3 +3,10 @@ uvicorn
 httpx
 python-multipart
 python-dotenv
+pydantic
+langchain
+langchain-community
+langchain-huggingface
+faiss-cpu
+sentence-transformers
+beautifulsoup4

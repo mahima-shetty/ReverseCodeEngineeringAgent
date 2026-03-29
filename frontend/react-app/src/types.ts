@@ -13,6 +13,7 @@ export interface FlatBlueverseRaw {
   security_issues?: string;
   antipatterns?: string;
   refactor_recommendations?: string;
+  jira_tickets?: string;
   [key: string]: unknown;
 }
 
@@ -46,7 +47,7 @@ export interface NormalizedResult {
     metrics: { maintainability: string | number; readability: string | number; testability: string | number };
   };
   security: {
-    issues: { severity: string; type: string; description: string; line: string }[];
+    issues: { severity: string; type: string; description: string; line: string; confidence_score: string; evidence: string }[];
     hardcoding: { type?: string; description?: string }[];
     score: number;
   };
@@ -55,6 +56,8 @@ export interface NormalizedResult {
     pattern: string;
     description: string;
     recommendation: string;
+    confidence_score: string;
+    evidence: string;
   }[];
   refactorRecommendations: {
     priority: string;
@@ -62,5 +65,13 @@ export interface NormalizedResult {
     description: string;
     benefit: string;
     codeHint: string;
+    confidence_score: string;
+    evidence: string;
+  }[];
+  jiraTickets: {
+    title: string;
+    description: string;
+    story_points: number | string;
+    type: string;
   }[];
 }

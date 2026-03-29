@@ -9,6 +9,7 @@ const TABS = [
   { id: 'security' as const, icon: '🔒', label: 'Security' },
   { id: 'antipatterns' as const, icon: '⚠️', label: 'Anti-patterns' },
   { id: 'refactor' as const, icon: '🛠', label: 'Refactor' },
+  { id: 'jira' as const, icon: '🎫', label: 'Jira Tasks' },
 ];
 
 type TabId = (typeof TABS)[number]['id'];
@@ -31,6 +32,7 @@ export function ReportPanel({ result }: Props) {
   const sec = result.security;
   const aps = result.antiPatterns;
   const recs = result.refactorRecommendations;
+  const jira = result.jiraTickets;
   const m = cx.metrics;
 
   return (
@@ -195,10 +197,11 @@ export function ReportPanel({ result }: Props) {
             {aps.map((a) => (
               <div key={a.pattern + a.description} className={`antipattern-item ${a.severity === 'MEDIUM' ? 'warn' : ''} stream-in`}>
                 <h4>
-                  <span style={{ color: riskColor(a.severity) }}>[{a.severity}]</span> {a.pattern}
+                  <span style={{ color: riskColor(a.severity) }}>[{a.severity}]</span> {a.pattern} {a.confidence_score ? <span style={{ fontSize: 11, color: 'var(--muted)' }}>({a.confidence_score}% confidence)</span> : null}
                 </h4>
                 <p>{a.description}</p>
                 {a.recommendation ? <p style={{ color: 'var(--accent3)', marginTop: 6 }}>💡 {a.recommendation}</p> : null}
+                {a.evidence ? <p style={{ color: 'var(--muted)', fontSize: 11, marginTop: 4 }}><em>Evidence: {a.evidence}</em></p> : null}
               </div>
             ))}
           </>
@@ -214,16 +217,32 @@ export function ReportPanel({ result }: Props) {
           recs.map((r) => (
             <div key={r.title + r.description} className="section-card stream-in">
               <h3>
-                <span style={{ color: riskColor(r.priority) }}>[{r.priority}]</span> {r.title}
+                <span style={{ color: riskColor(r.priority) }}>[{r.priority}]</span> {r.title} {r.confidence_score ? <span style={{ fontSize: 11, color: 'var(--muted)' }}>({r.confidence_score}% confidence)</span> : null}
               </h3>
               <p style={{ marginBottom: 10 }}>{r.description}</p>
               {r.benefit ? <p style={{ color: 'var(--accent3)', marginBottom: 10 }}>✅ Benefit: {r.benefit}</p> : null}
+              {r.evidence ? <p style={{ color: 'var(--muted)', fontSize: 11, marginBottom: 10 }}><em>Evidence: {r.evidence}</em></p> : null}
               {r.codeHint ? <div className="code-block">{r.codeHint}</div> : null}
             </div>
           ))
         ) : (
           <div className="section-card">
             <h3>✅ No Refactoring Needed</h3>
+          </div>
+        )}
+      </div>
+      <div className={`tab-content ${tab === 'jira' ? 'active' : ''}`} style={{ display: tab === 'jira' ? 'block' : 'none' }}>
+        {jira.length ? (
+          jira.map((t, idx) => (
+            <div key={t.title + idx} className="section-card stream-in">
+              <h3>🎫 [{t.type || 'Task'}] {t.title}</h3>
+              <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Story Points: {t.story_points || '—'}</div>
+              <p style={{ marginBottom: 10 }}>{t.description}</p>
+            </div>
+          ))
+        ) : (
+          <div className="section-card">
+            <h3>✅ No Jira Tickets Generated</h3>
           </div>
         )}
       </div>
@@ -259,12 +278,13 @@ function SecurityTab({ sec }: { sec: NormalizedResult['security'] }) {
           {sec.issues.map((i) => (
             <div key={i.type + i.description} className={`antipattern-item ${i.severity === 'MEDIUM' ? 'warn' : i.severity === 'LOW' ? 'low' : ''}`}>
               <h4>
-                <span style={{ color: riskColor(i.severity) }}>[{i.severity}]</span> {i.type}
+                <span style={{ color: riskColor(i.severity) }}>[{i.severity}]</span> {i.type} {i.confidence_score ? <span style={{ fontSize: 11, color: 'var(--muted)' }}>({i.confidence_score}% confidence)</span> : null}
               </h4>
               <p>
                 {i.description}{' '}
                 {i.line ? <span style={{ color: 'var(--accent)' }}>@ {i.line}</span> : null}
               </p>
+              {i.evidence ? <p style={{ color: 'var(--muted)', fontSize: 11, marginTop: 4 }}><em>Evidence: {i.evidence}</em></p> : null}
             </div>
           ))}
         </div>
