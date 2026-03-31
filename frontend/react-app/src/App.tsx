@@ -2,13 +2,14 @@ import { useCallback, useState } from 'react';
 import { analyzeCodeApi } from './lib/api';
 import { normalizeBlueverseResponse } from './lib/normalize';
 import type { Lang, NormalizedResult } from './types';
+import { PersonaProvider } from './context/PersonaContext';
 import { CodeInputPanel } from './components/CodeInputPanel';
 import { ConfigBar } from './components/ConfigBar';
 import { Header } from './components/Header';
 import { QuickSummary } from './components/QuickSummary';
 import { ReportPanel } from './components/ReportPanel';
 
-export default function App() {
+function AppInner() {
   const [code, setCode] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [token, setToken] = useState('');
@@ -72,5 +73,13 @@ export default function App() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <PersonaProvider>
+      <AppInner />
+    </PersonaProvider>
   );
 }

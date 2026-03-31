@@ -16,6 +16,32 @@
     --muted: #5a7090;
     --danger: #ff4d6d;
     --success: #00ff9d;
+
+    /* Persona accent — overridden by data-persona attribute */
+    --persona-accent: #7b61ff;
+    --persona-accent-rgb: 123, 97, 255;
+    --persona-glow: rgba(123, 97, 255, 0.25);
+  }
+
+  /* ── Developer theme (Purple) ── */
+  body[data-persona="developer"] {
+    --persona-accent: #7b61ff;
+    --persona-accent-rgb: 123, 97, 255;
+    --persona-glow: rgba(123, 97, 255, 0.25);
+  }
+
+  /* ── QA theme (Blue/Cyan) ── */
+  body[data-persona="qa"] {
+    --persona-accent: #00d4ff;
+    --persona-accent-rgb: 0, 212, 255;
+    --persona-glow: rgba(0, 212, 255, 0.25);
+  }
+
+  /* ── Project Manager theme (Magenta) ── */
+  body[data-persona="pm"] {
+    --persona-accent: #ff61dc;
+    --persona-accent-rgb: 255, 97, 220;
+    --persona-glow: rgba(255, 97, 220, 0.25);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -576,4 +602,250 @@
     height: 100%;
     border-radius: 3px;
     transition: width 1s ease;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     PERSONA THEMING — applies --persona-accent to UI elements
+     Smooth transitions for color changes on persona switch
+  ═══════════════════════════════════════════════════════ */
+
+  /* Smooth color transitions */
+  .tab-btn,
+  .tab-btn.active,
+  .section-card h3,
+  .analyze-btn,
+  .lang-tab,
+  .lang-tab.active,
+  .persona-selector-btn,
+  .mode-toggle-btn {
+    transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Tab active state uses persona accent */
+  .tab-btn.active {
+    color: var(--persona-accent) !important;
+    border-bottom-color: var(--persona-accent) !important;
+  }
+
+  /* Section card headings use persona accent */
+  .section-card h3 {
+    color: var(--persona-accent) !important;
+  }
+
+  /* Analyze button uses persona accent as gradient */
+  .analyze-btn {
+    background: linear-gradient(135deg, var(--persona-accent), var(--accent2)) !important;
+  }
+
+  /* ── Persona Selector ── */
+  .persona-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 4px 6px;
+  }
+
+  .persona-selector-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 24px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .persona-selector-btn:hover {
+    color: var(--text);
+  }
+
+  .persona-selector-btn.active {
+    background: rgba(var(--persona-accent-rgb), 0.12);
+    border-color: var(--persona-accent);
+    color: var(--persona-accent);
+    box-shadow: 0 0 12px rgba(var(--persona-accent-rgb), 0.2);
+  }
+
+  .persona-selector-icon {
+    font-size: 14px;
+  }
+
+  /* ── Persona Badge ── */
+  .persona-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid var(--persona-accent);
+    color: var(--persona-accent);
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .persona-badge-icon {
+    font-size: 13px;
+  }
+
+  /* ── Mode Toggle ── */
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 16px;
+  }
+
+  .mode-toggle-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-right: 6px;
+    padding-left: 6px;
+    white-space: nowrap;
+  }
+
+  .mode-toggle-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+
+  .mode-toggle-btn:hover {
+    color: var(--text);
+  }
+
+  .mode-toggle-btn.active {
+    background: rgba(var(--persona-accent-rgb), 0.12);
+    color: var(--persona-accent);
+  }
+
+  /* ── Test Scenario items (QA) ── */
+  .test-scenario-item {
+    border-left: 3px solid var(--persona-accent);
+    padding: 12px 16px;
+    background: rgba(var(--persona-accent-rgb), 0.05);
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 10px;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .test-scenario-item h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .test-scenario-item p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .scenario-type-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .scenario-type-badge.security { background: rgba(255,77,109,0.15); color: var(--danger); }
+  .scenario-type-badge.negative { background: rgba(255,107,53,0.15); color: var(--warn); }
+  .scenario-type-badge.edge     { background: rgba(123,97,255,0.15); color: var(--accent2); }
+  .scenario-type-badge.positive { background: rgba(0,255,157,0.15); color: var(--accent3); }
+
+  /* ── Impact Summary (PM) ── */
+  .impact-summary-card {
+    background: rgba(var(--persona-accent-rgb), 0.06);
+    border: 1px solid var(--persona-accent);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .impact-summary-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--persona-accent) !important;
+    margin-bottom: 10px;
+  }
+
+  .risk-level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .risk-level-badge.Low  { background: rgba(0,255,157,0.12); color: var(--accent3); border: 1px solid var(--accent3); }
+  .risk-level-badge.Medium { background: rgba(255,107,53,0.12); color: var(--warn); border: 1px solid var(--warn); }
+  .risk-level-badge.High { background: rgba(255,77,109,0.12); color: var(--danger); border: 1px solid var(--danger); }
+
+  .top-actions-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .top-actions-list li {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #b0c4de;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .top-actions-list li:last-child { border-bottom: none; }
+  .top-actions-list li::before { content: '▶'; color: var(--persona-accent); font-size: 9px; margin-top: 4px; flex-shrink: 0; }
+
+  /* Header right section for persona controls */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 700px) {
+    .persona-selector { display: none; }
+    .header-right { gap: 8px; }
   }

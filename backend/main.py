@@ -17,7 +17,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # Load backend/.env if present (never commit .env)
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+# override=True ensures .env values win over existing OS env vars
+# (e.g. GOOGLE_APPLICATION_CREDENTIALS set by gcloud ADC must be replaced by the SA key)
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"), override=True)
+
+# Eagerly warm up RAG store now that .env is loaded
+try:
+    from rag_store import init_rag_store
+    init_rag_store()
+except Exception:
+    pass
 
 app = FastAPI(title="CodeLens Backend")
 
@@ -64,6 +73,7 @@ def _try_parse_json_object(text: str) -> dict[str, Any] | None:
         obj = json.loads(t)
         return obj if isinstance(obj, dict) else None
     except json.JSONDecodeError:
+        # Try extracting the outermost {...} block
         start = t.find("{")
         end = t.rfind("}")
         if start >= 0 and end > start:
@@ -72,7 +82,129 @@ def _try_parse_json_object(text: str) -> dict[str, Any] | None:
                 return obj if isinstance(obj, dict) else None
             except json.JSONDecodeError:
                 pass
+        # Try to repair truncated JSON by closing open brackets/braces
+        if start >= 0:
+            candidate = t[start:]
+            repaired = _repair_truncated_json(candidate)
+            if repaired:
+                try:
+                    obj = json.loads(repaired)
+                    return obj if isinstance(obj, dict) else None
+                except json.JSONDecodeError:
+                    pass
     return None
+
+
+def _repair_truncated_json(s: str) -> str:
+    """
+    Attempt to close a truncated JSON object/array.
+    Strategy:
+    - Walk forward tracking string/bracket state.
+    - Record the last position that was a 'clean' end of a complete value
+      (after '}', ']', closing '"' of a VALUE — not a key, number, bool, null).
+    - If we're inside an open string at end, cut back to last clean position.
+    - Then close all still-open brackets/braces.
+    """
+    s = s.rstrip()
+    n = len(s)
+
+    stack: list[str] = []   # unmatched '{' or '['
+    in_string = False
+    escape = False
+    # after_colon: True means we just passed a ':' outside a string (next string is a VALUE)
+    after_colon = False
+    in_value_string = False  # True when current string is a JSON value (not a key)
+
+    # last_clean_pos: position just after the last fully-closed value
+    # We track TWO levels:
+    #   - last_complete_value_pos: after a ']' or '}' or closing '"' of a value or number/bool/null
+    #   - last_complete_member_pos: after a complete key:value pair + comma (safe to close object here)
+    last_complete_value_pos: int = 0
+    # Track when we close a container — that's always a safe cut point
+    last_container_close_pos: int = 0
+
+    i = 0
+    while i < n:
+        ch = s[i]
+        if escape:
+            escape = False
+            i += 1
+            continue
+        if in_string:
+            if ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+                if in_value_string:
+                    last_complete_value_pos = i + 1
+                in_value_string = False
+                after_colon = False
+        else:
+            if ch == '"':
+                in_string = True
+                # Is this string a VALUE (i.e. we just saw a ':' or we're inside an array)?
+                in_value_string = after_colon or (stack and stack[-1] == "[")
+            elif ch == ":":
+                after_colon = True
+            elif ch == ",":
+                after_colon = False
+            elif ch in "{[":
+                stack.append(ch)
+                after_colon = False
+            elif ch in "}]":
+                if stack:
+                    stack.pop()
+                last_container_close_pos = i + 1
+                last_complete_value_pos = i + 1
+                after_colon = False
+            elif ch in "0123456789.-":
+                # number — find its end
+                j = i + 1
+                while j < n and s[j] in "0123456789.eE+-":
+                    j += 1
+                last_complete_value_pos = j
+                i = j - 1  # will be incremented at end
+                after_colon = False
+            elif s[i:i+4] in ("true", "fals", "null"):
+                word_len = 5 if s[i:i+5] == "false" else 4
+                last_complete_value_pos = i + word_len
+                i += word_len - 1
+                after_colon = False
+        i += 1
+
+    # If we ended inside an open string, cut back to last complete value position
+    if in_string:
+        cut = last_complete_value_pos
+        s = s[:cut].rstrip().rstrip(",").rstrip()
+        # Recount stack on trimmed version
+        stack = []
+        in_s2 = False
+        esc2 = False
+        for ch2 in s:
+            if esc2:
+                esc2 = False
+                continue
+            if in_s2:
+                if ch2 == "\\":
+                    esc2 = True
+                elif ch2 == '"':
+                    in_s2 = False
+            else:
+                if ch2 == '"':
+                    in_s2 = True
+                elif ch2 in "{[":
+                    stack.append(ch2)
+                elif ch2 in "}]":
+                    if stack:
+                        stack.pop()
+    else:
+        # Not in string — but might have trailing comma
+        s = s.rstrip().rstrip(",").rstrip()
+
+    suffix = ""
+    for ch in reversed(stack):
+        suffix += "}" if ch == "{" else "]"
+    return s + suffix
 
 
 def _is_flat_schema(d: dict[str, Any]) -> bool:
@@ -220,18 +352,21 @@ def _build_request_body(
     language: str,
     space_name: str,
     flow_id: str,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], list[dict]]:
     """
     Blueverse Foundry chat API (see chatservice/chat):
       {"query": "...", "space_name": "...", "flowId": "..."}
 
     Set BLUEVERSE_USE_MESSAGES=1 to use legacy PRD {messages:[...]} shape instead.
+    Returns (request_body, rag_citations).
     """
     try:
-        from rag_store import get_rag_context
+        from rag_store import get_rag_context, get_rag_citations
         rag_context = get_rag_context(code[:2000])
+        rag_citations = get_rag_citations(code[:2000])
     except ImportError:
         rag_context = ""
+        rag_citations = []
 
     instruction_block = (
         "Perform highest-impact feature upgrades as per the user's PRD:\n"
@@ -282,7 +417,73 @@ def _build_request_body(
                 body.update(extra_obj)
         except json.JSONDecodeError:
             pass
-    return body
+    return body, rag_citations
+
+
+# LLM sometimes uses variant key names — remap them to our canonical schema
+_KEY_ALIASES: dict[str, str] = {
+    # refactor variants
+    "refactor_recommendations": "refactor_recommendations",
+    "recommendations": "refactor_recommendations",
+    "improvement_recommendations": "refactor_recommendations",
+    "code_improvement_recommendations": "refactor_recommendations",
+    "improve_code_structure_recommendations": "refactor_recommendations",
+    # catch anything containing "recommend" but not already named right
+}
+
+# Also match any key containing "recommend" case-insensitively
+def _canonical_key(k: str) -> str:
+    kl = k.lower().replace(" ", "_")
+    if kl in _KEY_ALIASES:
+        return _KEY_ALIASES[kl]
+    if "recommend" in kl and kl != "refactor_recommendations":
+        return "refactor_recommendations"
+    return k
+
+
+def _normalize_flat(flat: dict[str, Any]) -> dict[str, Any]:
+    """
+    Post-process the raw LLM dict to:
+    1. Remap variant key names (e.g. 'Improve code structure_recommendations') to canonical names
+    2. Wrap plain-string list fields in a single-item list (for fields that should be arrays)
+    3. Ensure all expected keys exist with sensible defaults
+    """
+    # Step 1: remap non-canonical keys
+    result: dict[str, Any] = {}
+    for k, v in flat.items():
+        result[_canonical_key(k)] = v
+
+    # Step 2: for list fields that might be plain strings, wrap them
+    list_fields = (
+        "functional_inputs", "functional_outputs", "dataflow_steps",
+        "security_issues", "antipatterns", "refactor_recommendations",
+        "jira_tickets", "business_logic", "side_effects",
+    )
+    for field in list_fields:
+        val = result.get(field)
+        if val is None:
+            result[field] = []
+        elif isinstance(val, str):
+            # Try to parse as JSON first
+            stripped = val.strip()
+            if stripped.startswith("["):
+                try:
+                    result[field] = json.loads(stripped)
+                    continue
+                except json.JSONDecodeError:
+                    pass
+            # Plain string — wrap as single string item (normalize.ts handles it)
+            result[field] = [stripped] if stripped else []
+
+    # Step 3: ensure top-level scalar fields have fallbacks
+    result.setdefault("summary_oneliner", "")
+    result.setdefault("summary_complexity", "MEDIUM")
+    result.setdefault("summary_risk", "MEDIUM")
+    result.setdefault("functional_purpose", "")
+    result.setdefault("complexity_score", 0)
+    result.setdefault("security_score", 0)
+
+    return result
 
 
 def _fallback_flat_from_error(lines_of_code: int, message: str) -> dict[str, Any]:
@@ -339,7 +540,7 @@ async def analyze(req: AnalyzeRequest):
     if not endpoint.lower().startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="Endpoint must be a full URL (https://...)")
 
-    body = _build_request_body(req.code, req.language, space_name, flow_id)
+    body, rag_citations = _build_request_body(req.code, req.language, space_name, flow_id)
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
@@ -382,5 +583,11 @@ async def analyze(req: AnalyzeRequest):
             lines_of_code,
             f"Unexpected response shape. First bytes: {snippet}",
         )
+
+    # Normalize key aliases + coerce plain-string list fields
+    flat = _normalize_flat(flat)
+
+    # Attach RAG citations so the frontend can show which org-standards docs were used
+    flat["rag_citations"] = rag_citations
 
     return flat

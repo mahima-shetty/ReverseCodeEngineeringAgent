@@ -1,4 +1,10 @@
 export type Lang = 'sql' | 'groovy' | 'oic' | 'shell' | 'auto';
+export type { Persona, ExplainMode } from './context/PersonaContext';
+
+export interface RagCitation {
+  source: string;
+  excerpt: string;
+}
 
 export interface FlatBlueverseRaw {
   summary_oneliner?: string;
@@ -14,6 +20,7 @@ export interface FlatBlueverseRaw {
   antipatterns?: string;
   refactor_recommendations?: string;
   jira_tickets?: string;
+  rag_citations?: RagCitation[];
   [key: string]: unknown;
 }
 
@@ -74,4 +81,5 @@ export interface NormalizedResult {
     story_points: number | string;
     type: string;
   }[];
+  ragCitations: RagCitation[];
 }

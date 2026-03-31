@@ -6,7 +6,8 @@ python-dotenv
 pydantic
 langchain
 langchain-community
-langchain-huggingface
-faiss-cpu
-sentence-transformers
 beautifulsoup4
+
+# GCP Vertex AI RAG Engine
+google-cloud-aiplatform[preview]>=1.38.0
+google-auth

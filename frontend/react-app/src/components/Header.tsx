@@ -1,3 +1,6 @@
+import { PersonaSelector } from './PersonaSelector';
+import { PersonaBadge } from './PersonaBadge';
+
 export function Header() {
   return (
     <header>
@@ -7,7 +10,10 @@ export function Header() {
           LTM<span>Universe</span>
         </div>
       </div>
-      <div className="badge">REVERSE ENGINEERING AGENT</div>
+      <div className="header-right">
+        <PersonaSelector />
+        <PersonaBadge />
+      </div>
     </header>
   );
 }
