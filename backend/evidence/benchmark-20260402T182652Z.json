@@ -1,0 +1,1731 @@
+{
+  "run_id": "benchmark-20260402T182652Z",
+  "generated_at": "2026-04-02T18:26:52.700604+00:00",
+  "summary": {
+    "total_cases": 6,
+    "approved": 0,
+    "flagged": 0,
+    "rejected": 6,
+    "kpis": {
+      "review_time_reduction_percent": 94.53,
+      "review_time_target_met": false,
+      "reviewer_confidence_percent": 33.83,
+      "reviewer_confidence_target_met": false,
+      "anti_pattern_catch_rate_percent": 16.67,
+      "anti_pattern_target_met": false,
+      "critical_issue_recall_percent": 26.33,
+      "unsupported_claim_rate_percent": 52.5,
+      "oracle_grounding_pass_rate_percent": 16.67,
+      "time_to_first_useful_output_seconds": 21.13,
+      "time_to_first_useful_output_target_met": false,
+      "manual_judge_score": 4.0,
+      "adoption_target_met": true,
+      "post_release_defect_reduction": "Tracked as pilot-only metric; synthetic benchmark does not claim this."
+    },
+    "artifact_type_breakdown": {
+      "sql": {
+        "count": 1,
+        "approved": 0,
+        "avg_review_time_reduction": 94.39
+      },
+      "plsql": {
+        "count": 1,
+        "approved": 0,
+        "avg_review_time_reduction": 95.98
+      },
+      "groovy": {
+        "count": 1,
+        "approved": 0,
+        "avg_review_time_reduction": 93.9
+      },
+      "bip": {
+        "count": 1,
+        "approved": 0,
+        "avg_review_time_reduction": 94.12
+      },
+      "oic": {
+        "count": 1,
+        "approved": 0,
+        "avg_review_time_reduction": 95.09
+      },
+      "script": {
+        "count": 1,
+        "approved": 0,
+        "avg_review_time_reduction": 93.72
+      }
+    },
+    "oracle_product_breakdown": {
+      "fusion": {
+        "count": 2,
+        "approved": 0,
+        "avg_grounding": 25.0
+      },
+      "ebs": {
+        "count": 2,
+        "approved": 0,
+        "avg_grounding": 0.0
+      },
+      "jde": {
+        "count": 1,
+        "approved": 0,
+        "avg_grounding": 0.0
+      },
+      "epm": {
+        "count": 1,
+        "approved": 0,
+        "avg_grounding": 100.0
+      }
+    }
+  },
+  "sample_results": [
+    {
+      "case_id": "bench-sql-fusion",
+      "artifact_type": "sql",
+      "oracle_product": "fusion",
+      "baseline_manual_review_seconds": 480.0,
+      "review_time_reduction_percent": 94.39,
+      "category_scores": {
+        "functional_intent": 67,
+        "data_flow": 67,
+        "complexity_hotspots": 0,
+        "security_findings": 100,
+        "performance_findings": 0,
+        "anti_patterns": 0,
+        "hardcoding_gaps": 100,
+        "error_handling_gaps": 100,
+        "refactor_recommendations": 0
+      },
+      "matched_keywords": {
+        "functional_intent": [
+          "invoice",
+          "unpaid invoices"
+        ],
+        "data_flow": [
+          "select",
+          "ap_invoices_all"
+        ],
+        "complexity_hotspots": [],
+        "security_findings": [
+          "sensitive financial data"
+        ],
+        "performance_findings": [],
+        "anti_patterns": [],
+        "hardcoding_gaps": [
+          "payment_status_flag"
+        ],
+        "error_handling_gaps": [],
+        "refactor_recommendations": []
+      },
+      "missed_keywords": {
+        "functional_intent": [
+          "payables"
+        ],
+        "data_flow": [
+          "payment status"
+        ],
+        "complexity_hotspots": [
+          "filter logic"
+        ],
+        "security_findings": [],
+        "performance_findings": [
+          "filter on status"
+        ],
+        "anti_patterns": [
+          "hard-coded status"
+        ],
+        "hardcoding_gaps": [],
+        "error_handling_gaps": [],
+        "refactor_recommendations": [
+          "parameterize status filter"
+        ]
+      },
+      "unsupported_findings": [
+        "{\"pattern\": \"direct _all table access without org context\", \"impact\": \"may return data across organizations in multi-org setup\", \"confidence_score\": 90, \"evidence\": \"select ... fro",
+        "{\"recommendation\": \"consider using ap_invoices_v view instead of _all table\", \"priority\": \"medium\", \"effort\": \"low\", \"confidence_score\": 80, \"evidence\": \"direct _all table access: "
+      ],
+      "grounding": {
+        "expected_sources": [
+          "financials",
+          "fusion"
+        ],
+        "matched_sources": [
+          "https://docs.oracle.com/en/cloud/saas/financials/"
+        ],
+        "citation_sources": [
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/en/cloud/saas/financials/",
+          "https://docs.oracle.com/cd/E26401_01/",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm"
+        ]
+      },
+      "judge_evaluation": {
+        "scores": {
+          "completeness": 48,
+          "correctness": 60,
+          "hallucination": 40
+        },
+        "validation": {
+          "accuracy": 47,
+          "oracle_grounding": 50,
+          "oracle_specificity": 100
+        },
+        "finding_metrics": {
+          "precision": 40,
+          "recall": 40,
+          "false_positive_rate": 40
+        },
+        "latency_metrics": {
+          "time_to_first_useful_output": 22.001,
+          "total_runtime": 26.93
+        },
+        "thresholds": {
+          "approved": {
+            "completeness_min": 85,
+            "correctness_min": 90,
+            "hallucination_max": 15,
+            "oracle_grounding_min": 85
+          },
+          "flagged": {
+            "completeness_min": 70,
+            "correctness_min": 75,
+            "hallucination_max": 30,
+            "oracle_grounding_min": 70
+          }
+        },
+        "status": "rejected",
+        "deliverable": false,
+        "summary": "Fusion SQL Payables Extract: completeness 48, correctness 60, hallucination 40, Oracle grounding 50.",
+        "blocking_issues": [
+          "RAG citations lack specific Oracle EBS AP module documentation",
+          "Missing references to Oracle AP security model specifics",
+          "Generic Oracle documentation without AP_INVOICES_ALL table specifics",
+          "Unsupported findings detected in the response.",
+          "Oracle grounding below target threshold."
+        ],
+        "recommended_action": "Hold response and review manually."
+      },
+      "final_status": "rejected",
+      "deliverable": false,
+      "analysis_item": {
+        "id": "bench-sql-fusion",
+        "label": "Fusion SQL Payables Extract",
+        "language": "sql",
+        "original_input": "SELECT invoice_num, invoice_amount, approval_status FROM ap_invoices_all WHERE payment_status_flag = 'N' AND cancelled_date IS NULL;",
+        "primary_output": {
+          "summary_oneliner": "Oracle E-Business Suite AP query retrieving unpaid, non-cancelled invoices with basic approval tracking",
+          "summary_complexity": "Low - simple SELECT with basic WHERE filtering on standard AP tables",
+          "summary_risk": "Medium - missing org_id filtering may expose cross-organization data in multi-org setup",
+          "functional_purpose": "Retrieves unpaid invoices from Oracle E-Business Suite Accounts Payable module for payment processing workflow",
+          "business_logic": [
+            "Filters AP invoices to show only those pending payment (payment_status_flag='N') that haven't been cancelled"
+          ],
+          "side_effects": [
+            "Read-only query with no data modifications or side effects"
+          ],
+          "functional_inputs": [
+            "ap_invoices_all table data with payment_status_flag and cancelled_date columns"
+          ],
+          "functional_outputs": [
+            "Invoice number, amount, and approval status for unpaid non-cancelled invoices"
+          ],
+          "dataflow_steps": [
+            "Query ap_invoices_all table in Oracle E-Business Suite",
+            "Filter records where payment_status_flag = 'N'",
+            "Exclude records with non-null cancelled_date",
+            "Return invoice_num, invoice_amount, approval_status columns"
+          ],
+          "complexity_score": 25,
+          "security_score": 65,
+          "security_issues": [
+            {
+              "issue": "Missing org_id filtering in multi-org Oracle E-Business Suite environment",
+              "severity": "Medium",
+              "confidence_score": 85,
+              "evidence": "WHERE payment_status_flag = 'N' AND cancelled_date IS NULL - no org_id restriction",
+              "standard_reference": "Oracle E-Business Suite multi-org security requires org_id filtering per documentation"
+            },
+            {
+              "issue": "No row-level security or VPD policy validation visible",
+              "severity": "Low",
+              "confidence_score": 70,
+              "evidence": "Direct table access without explicit security context validation",
+              "standard_reference": "Oracle E-Business Suite security model recommends VPD for sensitive financial data"
+            }
+          ],
+          "antipatterns": [
+            {
+              "pattern": "Direct _ALL table access without org context",
+              "impact": "May return data across organizations in multi-org setup",
+              "confidence_score": 90,
+              "evidence": "SELECT ... FROM ap_invoices_all WHERE ... - missing org_id filter",
+              "standard_reference": "Oracle E-Business Suite _ALL tables require org_id filtering per multi-org architecture"
+            }
+          ],
+          "refactor_recommendations": [
+            {
+              "recommendation": "Add org_id filtering for multi-org compliance",
+              "priority": "High",
+              "effort": "Low",
+              "confidence_score": 95,
+              "evidence": "Current query: WHERE payment_status_flag = 'N' AND cancelled_date IS NULL",
+              "standard_reference": "Oracle E-Business Suite multi-org documentation requires org_id in WHERE clause"
+            },
+            {
+              "recommendation": "Consider using AP_INVOICES_V view instead of _ALL table",
+              "priority": "Medium",
+              "effort": "Low",
+              "confidence_score": 80,
+              "evidence": "Direct _ALL table access: FROM ap_invoices_all",
+              "standard_reference": "Oracle E-Business Suite views provide built-in security and org filtering"
+            }
+          ],
+          "jira_tickets": [
+            {
+              "title": "Add org_id filtering to AP invoice query for multi-org compliance",
+              "description": "Update query to include org_id filter to prevent cross-organization data exposure in Oracle E-Business Suite multi-org environment",
+              "story_points": 3,
+              "type": "Bug"
+            },
+            {
+              "title": "Replace ap_invoices_all with secured view for better data access control",
+              "description": "Refactor query to use AP_INVOICES_V or similar secured view instead of direct _ALL table access for enhanced security",
+              "story_points": 5,
+              "type": "Story"
+            }
+          ],
+          "rag_citations": [
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "anager) .req (log file for a concurrent process) Note that log and out subdirectories under a product directory are not used if you choose to set up a common directory for log and output files (FND_TOP is the only exception to this). media Contains image files used to support display of text and graphics on the desktop client. mesg Contains .msb files (binary message files used at runtime), plus language-specific message files such as the US.msb file for American English and D.msb file for Germa"
+            },
+            {
+              "source": "https://docs.oracle.com/en/cloud/saas/financials/",
+              "excerpt": "Oracle Financials 26A - Get Started Go to main content Toggle navigation Sign Out Sign In Search Get Started Cloud Readiness / What's New AI Agents All Books APIs & Schema Videos Bite-Size Learning Top Tasks Use Implement Administer Configure and Extend Analyze and Report Secure Integrate Search Help Center Home Get Started Cloud Readiness / What's New AI Agents All Books APIs & Schema Videos Bite-Size Learning Top Tasks Use Implement Administer Configure and Extend Analyze and Report Secure Int"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/",
+              "excerpt": "Oracle E-Business Suite Documentation Web Library Release 12.2 Go to main content Home Overview Technology CRM Service Financials HCM MDM Projects Procurement G-Invoicing SCM VCP VCE Oracle E-Business Suite Documentation Web Library Release 12.2 Overview Welcome Welcome to the Oracle E-Business Suite Documentation Web Library for Release 12.2. The Web library contains comprehensive documentation for Oracle E-Business Suite global business applications. Use this library to review and download the"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "S. All the HTTP-specific configuration and log files are located here. Oracle_EBS-app1 : Oracle E-Business Suite is deployed as an Oracle Home under FMW. This directory contains all the configuration files related to oacore, forms, oafm, and forms-c4ws. Some of these, as well as some other subdirectories, are shown in the following diagram. Fusion Middleware Directory Structure The comn Directory The EBSapps/comn (COMMON_TOP) directory contains files used by many different Oracle E-Business Suit"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "table summarizes product subdirectories and the types of files each one may contain. Important: Not all products use all the subdirectories listed in this table. Applications Product Subdirectories and File Types Subdirectory Name Description admin The <PROD>_TOP/admin directory contains product-specific files used to upgrade each product. This is in distinction to the <APPL_TOP>/admin directory, which contains upgrade-related files for all products. driver Contains driver files (.drv files) use"
+            }
+          ],
+          "rag_diagnostics": {
+            "products": [],
+            "local_hits": 5,
+            "vertex_hits": 4,
+            "returned_hits": 5
+          }
+        },
+        "judge_evaluation": {
+          "scores": {
+            "completeness": 48,
+            "correctness": 60,
+            "hallucination": 40
+          },
+          "validation": {
+            "accuracy": 47,
+            "oracle_grounding": 50,
+            "oracle_specificity": 100
+          },
+          "finding_metrics": {
+            "precision": 40,
+            "recall": 40,
+            "false_positive_rate": 40
+          },
+          "latency_metrics": {
+            "time_to_first_useful_output": 22.001,
+            "total_runtime": 26.93
+          },
+          "thresholds": {
+            "approved": {
+              "completeness_min": 85,
+              "correctness_min": 90,
+              "hallucination_max": 15,
+              "oracle_grounding_min": 85
+            },
+            "flagged": {
+              "completeness_min": 70,
+              "correctness_min": 75,
+              "hallucination_max": 30,
+              "oracle_grounding_min": 70
+            }
+          },
+          "status": "rejected",
+          "deliverable": false,
+          "summary": "Fusion SQL Payables Extract: completeness 48, correctness 60, hallucination 40, Oracle grounding 50.",
+          "blocking_issues": [
+            "RAG citations lack specific Oracle EBS AP module documentation",
+            "Missing references to Oracle AP security model specifics",
+            "Generic Oracle documentation without AP_INVOICES_ALL table specifics",
+            "Unsupported findings detected in the response.",
+            "Oracle grounding below target threshold."
+          ],
+          "recommended_action": "Hold response and review manually."
+        },
+        "final_status": "rejected",
+        "deliverable": false
+      }
+    },
+    {
+      "case_id": "bench-plsql-ebs",
+      "artifact_type": "plsql",
+      "oracle_product": "ebs",
+      "baseline_manual_review_seconds": 720.0,
+      "review_time_reduction_percent": 95.98,
+      "category_scores": {
+        "functional_intent": 0,
+        "data_flow": 0,
+        "complexity_hotspots": 0,
+        "security_findings": 0,
+        "performance_findings": 0,
+        "anti_patterns": 0,
+        "hardcoding_gaps": 0,
+        "error_handling_gaps": 0,
+        "refactor_recommendations": 0
+      },
+      "matched_keywords": {
+        "functional_intent": [],
+        "data_flow": [],
+        "complexity_hotspots": [],
+        "security_findings": [],
+        "performance_findings": [],
+        "anti_patterns": [],
+        "hardcoding_gaps": [],
+        "error_handling_gaps": [],
+        "refactor_recommendations": []
+      },
+      "missed_keywords": {
+        "functional_intent": [
+          "concurrent program",
+          "invoice sync",
+          "audit log"
+        ],
+        "data_flow": [
+          "insert",
+          "xxap_audit_log",
+          "exception"
+        ],
+        "complexity_hotspots": [
+          "exception branch"
+        ],
+        "security_findings": [
+          "broad exception handling"
+        ],
+        "performance_findings": [
+          "commit inside procedure"
+        ],
+        "anti_patterns": [
+          "when others"
+        ],
+        "hardcoding_gaps": [
+          "SYNC START"
+        ],
+        "error_handling_gaps": [
+          "exception logging"
+        ],
+        "refactor_recommendations": [
+          "replace broad exception handling"
+        ]
+      },
+      "unsupported_findings": [
+        "{\"severity\": \"high\", \"type\": \"parseerror\", \"description\": \"primary agent failed: all connection attempts failed\"}"
+      ],
+      "grounding": {
+        "expected_sources": [
+          "e-business suite",
+          "concurrent"
+        ],
+        "matched_sources": [],
+        "citation_sources": []
+      },
+      "judge_evaluation": {
+        "scores": {
+          "completeness": 0,
+          "correctness": 33,
+          "hallucination": 100
+        },
+        "validation": {
+          "accuracy": 11,
+          "oracle_grounding": 0,
+          "oracle_specificity": 100
+        },
+        "finding_metrics": {
+          "precision": 0,
+          "recall": 0,
+          "false_positive_rate": 100
+        },
+        "latency_metrics": {
+          "time_to_first_useful_output": 0,
+          "total_runtime": 28.915
+        },
+        "thresholds": {
+          "approved": {
+            "completeness_min": 85,
+            "correctness_min": 90,
+            "hallucination_max": 15,
+            "oracle_grounding_min": 85
+          },
+          "flagged": {
+            "completeness_min": 70,
+            "correctness_min": 75,
+            "hallucination_max": 30,
+            "oracle_grounding_min": 70
+          }
+        },
+        "status": "rejected",
+        "deliverable": false,
+        "summary": "EBS Concurrent Program PL/SQL: completeness 0, correctness 33, hallucination 100, Oracle grounding 0.",
+        "blocking_issues": [
+          "Primary agent failed before judge review: All connection attempts failed",
+          "Unsupported findings detected in the response.",
+          "Oracle grounding below target threshold."
+        ],
+        "recommended_action": "Hold response and review manually."
+      },
+      "final_status": "rejected",
+      "deliverable": false,
+      "analysis_item": {
+        "id": "bench-plsql-ebs",
+        "label": "EBS Concurrent Program PL/SQL",
+        "language": "sql",
+        "original_input": "CREATE OR REPLACE PROCEDURE xxap_invoice_sync(errbuf OUT VARCHAR2, retcode OUT NUMBER) IS BEGIN INSERT INTO xxap_audit_log(message_text, created_on) VALUES('SYNC START', SYSDATE); COMMIT; EXCEPTION WHEN OTHERS THEN retcode := 2; errbuf := SQLERRM; END;",
+        "primary_output": {
+          "summary_oneliner": "Could not parse agent output as the expected JSON schema.",
+          "summary_complexity": "MEDIUM",
+          "summary_risk": "HIGH",
+          "functional_purpose": "Primary agent failed: All connection attempts failed",
+          "functional_inputs": "[]",
+          "functional_outputs": "[]",
+          "dataflow_steps": "[]",
+          "complexity_score": 1,
+          "security_score": 0,
+          "security_issues": "[{\"severity\": \"HIGH\", \"type\": \"ParseError\", \"description\": \"Primary agent failed: All connection attempts failed\"}]",
+          "antipatterns": "[]",
+          "refactor_recommendations": "[]",
+          "jira_tickets": "[]"
+        },
+        "judge_evaluation": {
+          "scores": {
+            "completeness": 0,
+            "correctness": 33,
+            "hallucination": 100
+          },
+          "validation": {
+            "accuracy": 11,
+            "oracle_grounding": 0,
+            "oracle_specificity": 100
+          },
+          "finding_metrics": {
+            "precision": 0,
+            "recall": 0,
+            "false_positive_rate": 100
+          },
+          "latency_metrics": {
+            "time_to_first_useful_output": 0,
+            "total_runtime": 28.915
+          },
+          "thresholds": {
+            "approved": {
+              "completeness_min": 85,
+              "correctness_min": 90,
+              "hallucination_max": 15,
+              "oracle_grounding_min": 85
+            },
+            "flagged": {
+              "completeness_min": 70,
+              "correctness_min": 75,
+              "hallucination_max": 30,
+              "oracle_grounding_min": 70
+            }
+          },
+          "status": "rejected",
+          "deliverable": false,
+          "summary": "EBS Concurrent Program PL/SQL: completeness 0, correctness 33, hallucination 100, Oracle grounding 0.",
+          "blocking_issues": [
+            "Primary agent failed before judge review: All connection attempts failed",
+            "Unsupported findings detected in the response.",
+            "Oracle grounding below target threshold."
+          ],
+          "recommended_action": "Hold response and review manually."
+        },
+        "final_status": "rejected",
+        "deliverable": false
+      }
+    },
+    {
+      "case_id": "bench-groovy-jde",
+      "artifact_type": "groovy",
+      "oracle_product": "jde",
+      "baseline_manual_review_seconds": 660.0,
+      "review_time_reduction_percent": 93.9,
+      "category_scores": {
+        "functional_intent": 33,
+        "data_flow": 67,
+        "complexity_hotspots": 0,
+        "security_findings": 100,
+        "performance_findings": 100,
+        "anti_patterns": 0,
+        "hardcoding_gaps": 100,
+        "error_handling_gaps": 0,
+        "refactor_recommendations": 0
+      },
+      "matched_keywords": {
+        "functional_intent": [
+          "approval"
+        ],
+        "data_flow": [
+          "payload",
+          "orderAmount"
+        ],
+        "complexity_hotspots": [],
+        "security_findings": [],
+        "performance_findings": [],
+        "anti_patterns": [],
+        "hardcoding_gaps": [
+          "FIN_DIRECTOR",
+          "10000"
+        ],
+        "error_handling_gaps": [],
+        "refactor_recommendations": []
+      },
+      "missed_keywords": {
+        "functional_intent": [
+          "order amount",
+          "financial approval"
+        ],
+        "data_flow": [
+          "approvalRequired"
+        ],
+        "complexity_hotspots": [
+          "threshold branch"
+        ],
+        "security_findings": [],
+        "performance_findings": [],
+        "anti_patterns": [
+          "hard-coded approver"
+        ],
+        "hardcoding_gaps": [],
+        "error_handling_gaps": [
+          "null payload handling"
+        ],
+        "refactor_recommendations": [
+          "externalize approval threshold"
+        ]
+      },
+      "unsupported_findings": [
+        "{\"type\": \"input validation\", \"description\": \"no null check on payload.orderamount before bigdecimal casting\", \"severity\": \"medium\", \"confidence_score\": 85, \"evidence\": \"payload.ord",
+        "{\"type\": \"configuration externalization\", \"description\": \"move approval threshold and roles to external configuration\", \"priority\": \"high\", \"confidence_score\": 92, \"evidence\": \"har",
+        "{\"type\": \"input validation\", \"description\": \"add null and type validation for payload.orderamount\", \"priority\": \"medium\", \"confidence_score\": 87, \"evidence\": \"missing validation ca"
+      ],
+      "grounding": {
+        "expected_sources": [
+          "jd edwards",
+          "enterpriseone"
+        ],
+        "matched_sources": [],
+        "citation_sources": [
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/en/applications/"
+        ]
+      },
+      "judge_evaluation": {
+        "scores": {
+          "completeness": 44,
+          "correctness": 58,
+          "hallucination": 50
+        },
+        "validation": {
+          "accuracy": 44,
+          "oracle_grounding": 0,
+          "oracle_specificity": 100
+        },
+        "finding_metrics": {
+          "precision": 33,
+          "recall": 40,
+          "false_positive_rate": 50
+        },
+        "latency_metrics": {
+          "time_to_first_useful_output": 33.056,
+          "total_runtime": 40.259
+        },
+        "thresholds": {
+          "approved": {
+            "completeness_min": 85,
+            "correctness_min": 90,
+            "hallucination_max": 15,
+            "oracle_grounding_min": 85
+          },
+          "flagged": {
+            "completeness_min": 70,
+            "correctness_min": 75,
+            "hallucination_max": 30,
+            "oracle_grounding_min": 70
+          }
+        },
+        "status": "rejected",
+        "deliverable": false,
+        "summary": "JDE Groovy Orchestration Rule: completeness 44, correctness 58, hallucination 50, Oracle grounding 0.",
+        "blocking_issues": [
+          "RAG citations completely unrelated to JDE Groovy orchestration",
+          "No Oracle JDE-specific context or best practices mentioned",
+          "Citations reference E-Business Suite file structure instead of JDE orchestration",
+          "Unsupported findings detected in the response.",
+          "Oracle grounding below target threshold."
+        ],
+        "recommended_action": "Hold response and review manually."
+      },
+      "final_status": "rejected",
+      "deliverable": false,
+      "analysis_item": {
+        "id": "bench-groovy-jde",
+        "label": "JDE Groovy Orchestration Rule",
+        "language": "groovy",
+        "original_input": "def amount = payload.orderAmount as BigDecimal\nif (amount > 10000) {\n  return [approvalRequired: true, approver: 'FIN_DIRECTOR']\n}\nreturn [approvalRequired: false]",
+        "primary_output": {
+          "summary_oneliner": "Simple order approval logic checking amount threshold against 10000 with hardcoded approver assignment",
+          "summary_complexity": "Low complexity with basic conditional logic and hardcoded values",
+          "summary_risk": "Medium risk due to hardcoded approver and lack of input validation",
+          "functional_purpose": "Determines if order requires approval based on amount threshold and assigns approver",
+          "business_logic": [
+            "Orders over 10000 require FIN_DIRECTOR approval, others auto-approved"
+          ],
+          "side_effects": [
+            "None - pure function returning approval decision map"
+          ],
+          "functional_inputs": [
+            "payload.orderAmount (expected numeric value)"
+          ],
+          "functional_outputs": [
+            "Map with approvalRequired boolean and optional approver string"
+          ],
+          "dataflow_steps": [
+            "Extract orderAmount from payload and cast to BigDecimal",
+            "Compare amount against 10000 threshold",
+            "Return approval decision map with approver if required"
+          ],
+          "complexity_score": 25,
+          "security_score": 60,
+          "security_issues": [
+            {
+              "type": "Input Validation",
+              "description": "No null check on payload.orderAmount before BigDecimal casting",
+              "severity": "Medium",
+              "confidence_score": 85,
+              "evidence": "payload.orderAmount as BigDecimal - no null validation"
+            },
+            {
+              "type": "Hardcoded Values",
+              "description": "Hardcoded approver role creates maintenance and security risks",
+              "severity": "Low",
+              "confidence_score": 90,
+              "evidence": "approver: 'FIN_DIRECTOR' - hardcoded string value"
+            }
+          ],
+          "antipatterns": [
+            {
+              "pattern": "Magic Numbers",
+              "description": "Hardcoded threshold 10000 should be externalized as configuration",
+              "confidence_score": 95,
+              "evidence": "if (amount > 10000) - magic number threshold"
+            },
+            {
+              "pattern": "Hardcoded Dependencies",
+              "description": "Approver role hardcoded instead of using role-based configuration",
+              "confidence_score": 88,
+              "evidence": "approver: 'FIN_DIRECTOR' - should use role mapping"
+            }
+          ],
+          "refactor_recommendations": [
+            {
+              "type": "Configuration Externalization",
+              "description": "Move approval threshold and roles to external configuration",
+              "priority": "High",
+              "confidence_score": 92,
+              "evidence": "Hardcoded values limit flexibility and maintainability"
+            },
+            {
+              "type": "Input Validation",
+              "description": "Add null and type validation for payload.orderAmount",
+              "priority": "Medium",
+              "confidence_score": 87,
+              "evidence": "Missing validation can cause runtime exceptions"
+            }
+          ],
+          "jira_tickets": [
+            {
+              "title": "Externalize approval threshold configuration",
+              "description": "Move hardcoded 10000 threshold to configurable parameter for flexible approval limits",
+              "story_points": 3,
+              "type": "Enhancement"
+            },
+            {
+              "title": "Add input validation for orderAmount",
+              "description": "Implement null and type validation before BigDecimal casting to prevent runtime errors",
+              "story_points": 2,
+              "type": "Bug"
+            }
+          ],
+          "rag_citations": [
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "anager) .req (log file for a concurrent process) Note that log and out subdirectories under a product directory are not used if you choose to set up a common directory for log and output files (FND_TOP is the only exception to this). media Contains image files used to support display of text and graphics on the desktop client. mesg Contains .msb files (binary message files used at runtime), plus language-specific message files such as the US.msb file for American English and D.msb file for Germa"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "S. All the HTTP-specific configuration and log files are located here. Oracle_EBS-app1 : Oracle E-Business Suite is deployed as an Oracle Home under FMW. This directory contains all the configuration files related to oacore, forms, oafm, and forms-c4ws. Some of these, as well as some other subdirectories, are shown in the following diagram. Fusion Middleware Directory Structure The comn Directory The EBSapps/comn (COMMON_TOP) directory contains files used by many different Oracle E-Business Suit"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "line help source files. Within this directory are subdirectories for each language installed. html Contains HTML, JavaScript, and JavaServer Page (JSP) files, primarily for HTML-based Applications products. include Contains C language header (.h) files that my be linked with files in the lib directory. Not all products require this directory. java Contains JAR files (Java Archive files) and Java dependency files. Copies of JAR files are also located in the $AF_JLIB directory. lib Contains files "
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "vironment setting. The APPLPTMP directory must be set to a database directory defined for PL/SQL file I/O. Refer to My Oracle Support Knowledge Document 2525754.1, Using UTL_FILE_DIR or Database Directories for PL/SQL File I/O in Oracle E-Business Suite Releases 12.1 and 12.2 . Rapid Install sets the value of the database directory defined for PL/SQL file I/O and assigns it to the APPLPTMP environment variable. Some Oracle E-Business Suite utilities use your operating system's default temporary "
+            },
+            {
+              "source": "https://docs.oracle.com/en/applications/",
+              "excerpt": "Oracle Applications - Applications Documentation Go to main content Toggle navigation Sign Out Sign In Search Overall Fusion Cloud Apps Enterprise Performance Management E-Business PeopleSoft Siebel CRM JD Edwards Products A-Z Search Help Center Home Overall Fusion Cloud Apps Enterprise Performance Management E-Business PeopleSoft Siebel CRM JD Edwards Products A-Z Home Applications Oracle Applications Fusion Applications (Cloud) Oracle Fusion Applications were designed, from the ground, up usin"
+            }
+          ],
+          "rag_diagnostics": {
+            "products": [],
+            "local_hits": 5,
+            "vertex_hits": 4,
+            "returned_hits": 5
+          }
+        },
+        "judge_evaluation": {
+          "scores": {
+            "completeness": 44,
+            "correctness": 58,
+            "hallucination": 50
+          },
+          "validation": {
+            "accuracy": 44,
+            "oracle_grounding": 0,
+            "oracle_specificity": 100
+          },
+          "finding_metrics": {
+            "precision": 33,
+            "recall": 40,
+            "false_positive_rate": 50
+          },
+          "latency_metrics": {
+            "time_to_first_useful_output": 33.056,
+            "total_runtime": 40.259
+          },
+          "thresholds": {
+            "approved": {
+              "completeness_min": 85,
+              "correctness_min": 90,
+              "hallucination_max": 15,
+              "oracle_grounding_min": 85
+            },
+            "flagged": {
+              "completeness_min": 70,
+              "correctness_min": 75,
+              "hallucination_max": 30,
+              "oracle_grounding_min": 70
+            }
+          },
+          "status": "rejected",
+          "deliverable": false,
+          "summary": "JDE Groovy Orchestration Rule: completeness 44, correctness 58, hallucination 50, Oracle grounding 0.",
+          "blocking_issues": [
+            "RAG citations completely unrelated to JDE Groovy orchestration",
+            "No Oracle JDE-specific context or best practices mentioned",
+            "Citations reference E-Business Suite file structure instead of JDE orchestration",
+            "Unsupported findings detected in the response.",
+            "Oracle grounding below target threshold."
+          ],
+          "recommended_action": "Hold response and review manually."
+        },
+        "final_status": "rejected",
+        "deliverable": false
+      }
+    },
+    {
+      "case_id": "bench-bip-fusion",
+      "artifact_type": "bip",
+      "oracle_product": "fusion",
+      "baseline_manual_review_seconds": 540.0,
+      "review_time_reduction_percent": 94.12,
+      "category_scores": {
+        "functional_intent": 0,
+        "data_flow": 33,
+        "complexity_hotspots": 100,
+        "security_findings": 100,
+        "performance_findings": 100,
+        "anti_patterns": 0,
+        "hardcoding_gaps": 100,
+        "error_handling_gaps": 100,
+        "refactor_recommendations": 0
+      },
+      "matched_keywords": {
+        "functional_intent": [],
+        "data_flow": [
+          "poz_suppliers"
+        ],
+        "complexity_hotspots": [],
+        "security_findings": [
+          "supplier master data"
+        ],
+        "performance_findings": [],
+        "anti_patterns": [],
+        "hardcoding_gaps": [
+          "enabled_flag"
+        ],
+        "error_handling_gaps": [],
+        "refactor_recommendations": []
+      },
+      "missed_keywords": {
+        "functional_intent": [
+          "supplier report",
+          "bi publisher",
+          "active suppliers"
+        ],
+        "data_flow": [
+          "data model",
+          "sqlStatement"
+        ],
+        "complexity_hotspots": [],
+        "security_findings": [],
+        "performance_findings": [],
+        "anti_patterns": [
+          "hard-coded enabled flag"
+        ],
+        "hardcoding_gaps": [],
+        "error_handling_gaps": [],
+        "refactor_recommendations": [
+          "parameterize active supplier filter"
+        ]
+      },
+      "unsupported_findings": [
+        "{\"type\": \"add security context\", \"description\": \"include organization_id or business unit filtering for multi-org security\", \"confidence_score\": 85, \"evidence\": \"missing org-level "
+      ],
+      "grounding": {
+        "expected_sources": [
+          "fusion",
+          "applications"
+        ],
+        "matched_sources": [],
+        "citation_sources": [
+          "https://docs.oracle.com/en/cloud/saas/financials/",
+          "https://docs.oracle.com/cd/E26401_01/",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm"
+        ]
+      },
+      "judge_evaluation": {
+        "scores": {
+          "completeness": 59,
+          "correctness": 50,
+          "hallucination": 25
+        },
+        "validation": {
+          "accuracy": 33,
+          "oracle_grounding": 0,
+          "oracle_specificity": 100
+        },
+        "finding_metrics": {
+          "precision": 25,
+          "recall": 25,
+          "false_positive_rate": 25
+        },
+        "latency_metrics": {
+          "time_to_first_useful_output": 20.262,
+          "total_runtime": 31.725
+        },
+        "thresholds": {
+          "approved": {
+            "completeness_min": 85,
+            "correctness_min": 90,
+            "hallucination_max": 15,
+            "oracle_grounding_min": 85
+          },
+          "flagged": {
+            "completeness_min": 70,
+            "correctness_min": 75,
+            "hallucination_max": 30,
+            "oracle_grounding_min": 70
+          }
+        },
+        "status": "rejected",
+        "deliverable": false,
+        "summary": "Fusion BI Publisher Config: completeness 59, correctness 50, hallucination 25, Oracle grounding 0.",
+        "blocking_issues": [
+          "RAG citations lack specific Oracle Fusion Procurement documentation",
+          "Security recommendations not fully grounded in Oracle Fusion BI Publisher context",
+          "Missing BI Publisher-specific configuration guidance",
+          "Unsupported findings detected in the response.",
+          "Oracle grounding below target threshold."
+        ],
+        "recommended_action": "Hold response and review manually."
+      },
+      "final_status": "rejected",
+      "deliverable": false,
+      "analysis_item": {
+        "id": "bench-bip-fusion",
+        "label": "Fusion BI Publisher Config",
+        "language": "oic",
+        "original_input": "<dataModel><sqlStatement name=\"Q1\"><![CDATA[select supplier_name, supplier_number from poz_suppliers where enabled_flag = 'Y']]></sqlStatement></dataModel>",
+        "primary_output": {
+          "summary_oneliner": "Oracle Procurement supplier query retrieving active supplier names and numbers from POZ_SUPPLIERS table",
+          "summary_complexity": "Low - simple SELECT with basic WHERE clause filtering",
+          "summary_risk": "Low - read-only query with standard Oracle Procurement table access",
+          "functional_purpose": "Retrieves active supplier master data for Oracle Procurement Cloud applications",
+          "business_logic": [
+            "Filters suppliers by enabled_flag='Y' to return only active supplier records"
+          ],
+          "side_effects": [
+            "None - read-only SELECT operation"
+          ],
+          "functional_inputs": [
+            "None - static query with hardcoded filter criteria"
+          ],
+          "functional_outputs": [
+            "Supplier name and number pairs for enabled suppliers"
+          ],
+          "dataflow_steps": [
+            "Query POZ_SUPPLIERS table in Oracle Procurement schema",
+            "Filter records where enabled_flag equals 'Y'",
+            "Return supplier_name and supplier_number columns"
+          ],
+          "complexity_score": 15,
+          "security_score": 85,
+          "security_issues": [
+            {
+              "type": "Missing Access Control",
+              "description": "No row-level security or user context filtering applied",
+              "confidence_score": 75,
+              "evidence": "select supplier_name, supplier_number from poz_suppliers where enabled_flag = 'Y'",
+              "standard_reference": "Oracle E-Business Suite security requires proper data access controls per Oracle documentation"
+            }
+          ],
+          "antipatterns": [
+            {
+              "type": "Hardcoded Values",
+              "description": "Enabled flag value 'Y' is hardcoded instead of parameterized",
+              "confidence_score": 80,
+              "evidence": "enabled_flag = 'Y'",
+              "standard_reference": "Oracle best practices recommend parameterized queries for maintainability"
+            }
+          ],
+          "refactor_recommendations": [
+            {
+              "type": "Add Parameters",
+              "description": "Replace hardcoded 'Y' with bind variable for enabled_flag",
+              "confidence_score": 90,
+              "evidence": "where enabled_flag = 'Y'",
+              "standard_reference": "Oracle SQL best practices for parameterized queries"
+            },
+            {
+              "type": "Add Security Context",
+              "description": "Include organization_id or business unit filtering for multi-org security",
+              "confidence_score": 85,
+              "evidence": "Missing org-level filtering in POZ_SUPPLIERS query",
+              "standard_reference": "Oracle Procurement Cloud multi-org security requirements"
+            }
+          ],
+          "jira_tickets": [
+            {
+              "title": "Add parameterization to supplier query",
+              "description": "Replace hardcoded enabled_flag value with bind variable for better maintainability and performance",
+              "story_points": 2,
+              "type": "Enhancement"
+            },
+            {
+              "title": "Implement row-level security for supplier data access",
+              "description": "Add organization_id filtering and user context validation to supplier query per Oracle security standards",
+              "story_points": 5,
+              "type": "Security"
+            }
+          ],
+          "rag_citations": [
+            {
+              "source": "https://docs.oracle.com/en/cloud/saas/financials/",
+              "excerpt": "Oracle Financials 26A - Get Started Go to main content Toggle navigation Sign Out Sign In Search Get Started Cloud Readiness / What's New AI Agents All Books APIs & Schema Videos Bite-Size Learning Top Tasks Use Implement Administer Configure and Extend Analyze and Report Secure Integrate Search Help Center Home Get Started Cloud Readiness / What's New AI Agents All Books APIs & Schema Videos Bite-Size Learning Top Tasks Use Implement Administer Configure and Extend Analyze and Report Secure Int"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/",
+              "excerpt": "Oracle E-Business Suite Documentation Web Library Release 12.2 Go to main content Home Overview Technology CRM Service Financials HCM MDM Projects Procurement G-Invoicing SCM VCP VCE Oracle E-Business Suite Documentation Web Library Release 12.2 Overview Welcome Welcome to the Oracle E-Business Suite Documentation Web Library for Release 12.2. The Web library contains comprehensive documentation for Oracle E-Business Suite global business applications. Use this library to review and download the"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "instance and a test instance. Most configuration files created by AutoConfig are stored under the Instance Home. Other benefits of the Instance Home include support for read-only file systems . Prior to Release 12.2, all the configuration files modified by AutoConfig were located under $INST_TOP. The following parts of the file system could be made read-only: APPL_TOP, OracleAS 10.1.2 ORACLE_HOME, and OracleAS 10.1.3 ORACLE_HOME. In Release 12.2, the APPL_TOP and FMW_Home contain some configurat"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "ample, $INST_TOP might be /u01/R122_EBS/fs1/inst/apps/vision_testsys , where vision_testsys is the context name. In a multi-node application tier environment, the Instance Home is typically located on a local filesystem. For example, $INST_TOP might be /inst/R122_EBS/fs1/inst/apps/vision_testsys , where vision_testsys is the context name. Instance Home Directory Structure The HTTP and Oracle WebLogic Server configuration files are not stored under the $INST_TOP. For further details, refer to the"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "S. All the HTTP-specific configuration and log files are located here. Oracle_EBS-app1 : Oracle E-Business Suite is deployed as an Oracle Home under FMW. This directory contains all the configuration files related to oacore, forms, oafm, and forms-c4ws. Some of these, as well as some other subdirectories, are shown in the following diagram. Fusion Middleware Directory Structure The comn Directory The EBSapps/comn (COMMON_TOP) directory contains files used by many different Oracle E-Business Suit"
+            }
+          ],
+          "rag_diagnostics": {
+            "products": [],
+            "local_hits": 5,
+            "vertex_hits": 5,
+            "returned_hits": 5
+          }
+        },
+        "judge_evaluation": {
+          "scores": {
+            "completeness": 59,
+            "correctness": 50,
+            "hallucination": 25
+          },
+          "validation": {
+            "accuracy": 33,
+            "oracle_grounding": 0,
+            "oracle_specificity": 100
+          },
+          "finding_metrics": {
+            "precision": 25,
+            "recall": 25,
+            "false_positive_rate": 25
+          },
+          "latency_metrics": {
+            "time_to_first_useful_output": 20.262,
+            "total_runtime": 31.725
+          },
+          "thresholds": {
+            "approved": {
+              "completeness_min": 85,
+              "correctness_min": 90,
+              "hallucination_max": 15,
+              "oracle_grounding_min": 85
+            },
+            "flagged": {
+              "completeness_min": 70,
+              "correctness_min": 75,
+              "hallucination_max": 30,
+              "oracle_grounding_min": 70
+            }
+          },
+          "status": "rejected",
+          "deliverable": false,
+          "summary": "Fusion BI Publisher Config: completeness 59, correctness 50, hallucination 25, Oracle grounding 0.",
+          "blocking_issues": [
+            "RAG citations lack specific Oracle Fusion Procurement documentation",
+            "Security recommendations not fully grounded in Oracle Fusion BI Publisher context",
+            "Missing BI Publisher-specific configuration guidance",
+            "Unsupported findings detected in the response.",
+            "Oracle grounding below target threshold."
+          ],
+          "recommended_action": "Hold response and review manually."
+        },
+        "final_status": "rejected",
+        "deliverable": false
+      }
+    },
+    {
+      "case_id": "bench-oic-epm",
+      "artifact_type": "oic",
+      "oracle_product": "epm",
+      "baseline_manual_review_seconds": 780.0,
+      "review_time_reduction_percent": 95.09,
+      "category_scores": {
+        "functional_intent": 33,
+        "data_flow": 33,
+        "complexity_hotspots": 0,
+        "security_findings": 0,
+        "performance_findings": 0,
+        "anti_patterns": 100,
+        "hardcoding_gaps": 100,
+        "error_handling_gaps": 0,
+        "refactor_recommendations": 0
+      },
+      "matched_keywords": {
+        "functional_intent": [
+          "epm import"
+        ],
+        "data_flow": [
+          "invoke"
+        ],
+        "complexity_hotspots": [],
+        "security_findings": [],
+        "performance_findings": [],
+        "anti_patterns": [],
+        "hardcoding_gaps": [
+          "email"
+        ],
+        "error_handling_gaps": [],
+        "refactor_recommendations": []
+      },
+      "missed_keywords": {
+        "functional_intent": [
+          "budget load",
+          "scheduled integration"
+        ],
+        "data_flow": [
+          "stage file",
+          "notify"
+        ],
+        "complexity_hotspots": [
+          "integration steps"
+        ],
+        "security_findings": [
+          "notification handling"
+        ],
+        "performance_findings": [
+          "batch import"
+        ],
+        "anti_patterns": [],
+        "hardcoding_gaps": [],
+        "error_handling_gaps": [
+          "invoke failure handling"
+        ],
+        "refactor_recommendations": [
+          "add retry or fault path"
+        ]
+      },
+      "unsupported_findings": [
+        "{\"issue\": \"no authentication or authorization configuration specified for epm_import invocation\", \"severity\": \"medium\", \"confidence_score\": 85, \"evidence\": \"\\\"target\\\":\\\"epm_import",
+        "{\"pattern\": \"missing error handling and retry logic for epm import failures\", \"impact\": \"high\", \"confidence_score\": 90, \"evidence\": \"no error handling steps defined in integration ",
+        "{\"pattern\": \"hardcoded target service name without environment parameterization\", \"impact\": \"medium\", \"confidence_score\": 80, \"evidence\": \"\\\"target\\\":\\\"epm_import\\\" is hardcoded\", ",
+        "{\"recommendation\": \"add comprehensive error handling with retry logic and dead letter queue for failed epm imports\", \"priority\": \"high\", \"confidence_score\": 95, \"evidence\": \"curren",
+        "{\"recommendation\": \"implement parameterized configuration for epm target service and notification recipients\", \"priority\": \"medium\", \"confidence_score\": 85, \"evidence\": \"hardcoded "
+      ],
+      "grounding": {
+        "expected_sources": [
+          "epm",
+          "planning"
+        ],
+        "matched_sources": [
+          "https://docs.oracle.com/en/cloud/saas/epm-cloud/",
+          "https://docs.oracle.com/en/cloud/saas/epm-cloud/"
+        ],
+        "citation_sources": [
+          "https://docs.oracle.com/en/cloud/saas/epm-cloud/",
+          "https://docs.oracle.com/en/applications/",
+          "https://docs.oracle.com/en/applications/",
+          "https://docs.oracle.com/en/cloud/saas/financials/",
+          "https://docs.oracle.com/en/cloud/saas/epm-cloud/"
+        ]
+      },
+      "judge_evaluation": {
+        "scores": {
+          "completeness": 30,
+          "correctness": 46,
+          "hallucination": 83
+        },
+        "validation": {
+          "accuracy": 28,
+          "oracle_grounding": 100,
+          "oracle_specificity": 100
+        },
+        "finding_metrics": {
+          "precision": 17,
+          "recall": 20,
+          "false_positive_rate": 83
+        },
+        "latency_metrics": {
+          "time_to_first_useful_output": 29.234,
+          "total_runtime": 38.306
+        },
+        "thresholds": {
+          "approved": {
+            "completeness_min": 85,
+            "correctness_min": 90,
+            "hallucination_max": 15,
+            "oracle_grounding_min": 85
+          },
+          "flagged": {
+            "completeness_min": 70,
+            "correctness_min": 75,
+            "hallucination_max": 30,
+            "oracle_grounding_min": 70
+          }
+        },
+        "status": "rejected",
+        "deliverable": false,
+        "summary": "EPM OIC Flow Extract: completeness 30, correctness 46, hallucination 83, Oracle grounding 100.",
+        "blocking_issues": [
+          "Security issues lack specific Oracle EPM Cloud authentication documentation references",
+          "Error handling recommendations not tied to specific EPM Cloud EDM requirements",
+          "RAG citations are too generic and don't support specific technical claims made",
+          "Unsupported findings detected in the response."
+        ],
+        "recommended_action": "Hold response and review manually."
+      },
+      "final_status": "rejected",
+      "deliverable": false,
+      "analysis_item": {
+        "id": "bench-oic-epm",
+        "label": "EPM OIC Flow Extract",
+        "language": "oic",
+        "original_input": "{\"integrationName\":\"EPM_Budget_Load\",\"trigger\":\"schedule\",\"steps\":[{\"type\":\"stageFile\",\"name\":\"ReadBudget\"},{\"type\":\"invoke\",\"target\":\"EPM_IMPORT\"},{\"type\":\"notify\",\"channel\":\"email\"}]}",
+        "primary_output": {
+          "summary_oneliner": "OIC integration for scheduled EPM budget data loading with file staging, import invocation, and email notification",
+          "summary_complexity": "Low complexity with 3 sequential steps in standard ETL pattern",
+          "summary_risk": "Medium risk due to lack of error handling and notification configuration details",
+          "functional_purpose": "Automates EPM budget data import process through scheduled file processing and notification workflow",
+          "business_logic": [
+            "Stages budget file, invokes EPM import service, sends completion notification via email"
+          ],
+          "side_effects": [
+            "Creates staged files, triggers EPM data import, generates email notifications"
+          ],
+          "functional_inputs": [
+            "Budget data files for staging and processing"
+          ],
+          "functional_outputs": [
+            "Imported budget data in EPM system and email notification"
+          ],
+          "dataflow_steps": [
+            "File staging operation reads budget data",
+            "EPM_IMPORT service processes staged budget data",
+            "Email notification sent upon completion"
+          ],
+          "complexity_score": 25,
+          "security_score": 60,
+          "security_issues": [
+            {
+              "issue": "No authentication or authorization configuration specified for EPM_IMPORT invocation",
+              "severity": "Medium",
+              "confidence_score": 85,
+              "evidence": "\"target\":\"EPM_IMPORT\" lacks security context",
+              "standard_reference": "Oracle EPM Cloud security requires proper authentication for data import operations"
+            },
+            {
+              "issue": "Email notification channel lacks recipient and content security configuration",
+              "severity": "Low",
+              "confidence_score": 75,
+              "evidence": "\"channel\":\"email\" without recipient or encryption details",
+              "standard_reference": "Oracle Cloud integration best practices require secure notification configuration"
+            }
+          ],
+          "antipatterns": [
+            {
+              "pattern": "Missing error handling and retry logic for EPM import failures",
+              "impact": "High",
+              "confidence_score": 90,
+              "evidence": "No error handling steps defined in integration flow",
+              "standard_reference": "Oracle EPM Cloud integrations require robust error handling for data import reliability"
+            },
+            {
+              "pattern": "Hardcoded target service name without environment parameterization",
+              "impact": "Medium",
+              "confidence_score": 80,
+              "evidence": "\"target\":\"EPM_IMPORT\" is hardcoded",
+              "standard_reference": "Oracle Cloud integration patterns recommend environment-specific configuration"
+            }
+          ],
+          "refactor_recommendations": [
+            {
+              "recommendation": "Add comprehensive error handling with retry logic and dead letter queue for failed EPM imports",
+              "priority": "High",
+              "confidence_score": 95,
+              "evidence": "Current flow lacks fault tolerance mechanisms",
+              "standard_reference": "Oracle EPM Cloud Enterprise Data Management requires robust error handling for data integrity"
+            },
+            {
+              "recommendation": "Implement parameterized configuration for EPM target service and notification recipients",
+              "priority": "Medium",
+              "confidence_score": 85,
+              "evidence": "Hardcoded values limit deployment flexibility",
+              "standard_reference": "Oracle Fusion Middleware integration best practices emphasize environment-agnostic design"
+            }
+          ],
+          "jira_tickets": [
+            {
+              "title": "Add Error Handling to EPM Budget Load Integration",
+              "description": "Implement retry logic, error notifications, and dead letter queue for EPM_IMPORT failures to ensure data integrity",
+              "story_points": 5,
+              "type": "Bug"
+            },
+            {
+              "title": "Parameterize EPM Integration Configuration",
+              "description": "Replace hardcoded EPM_IMPORT target and email settings with environment-specific parameters for deployment flexibility",
+              "story_points": 3,
+              "type": "Bug"
+            }
+          ],
+          "rag_citations": [
+            {
+              "source": "https://docs.oracle.com/en/cloud/saas/epm-cloud/",
+              "excerpt": "rces using the robust capabilities within Narrative Reporting and leverage visualization, analysis and reporting capabilities within Cloud EPM Platform. Narrative Reporting FreeForm Cloud Enterprise Data Management Cloud Enterprise Data Management provides a single platform to flexibly manage enterprise data while maintaining data integrity and enterprise application alignment. With improved data management, you can drive agile business transformation. Cloud Enterprise Data Management is a Cloud"
+            },
+            {
+              "source": "https://docs.oracle.com/en/applications/",
+              "excerpt": "Oracle Applications - Applications Documentation Go to main content Toggle navigation Sign Out Sign In Search Overall Fusion Cloud Apps Enterprise Performance Management E-Business PeopleSoft Siebel CRM JD Edwards Products A-Z Search Help Center Home Overall Fusion Cloud Apps Enterprise Performance Management E-Business PeopleSoft Siebel CRM JD Edwards Products A-Z Home Applications Oracle Applications Fusion Applications (Cloud) Oracle Fusion Applications were designed, from the ground, up usin"
+            },
+            {
+              "source": "https://docs.oracle.com/en/applications/",
+              "excerpt": "ata sources. All these solutions are integrated using Oracle Fusion Middleware. Easy to use, easy to manage, and with low deployment costs, it's the most comprehensive and flexible enterprise performance management system in the marketplace. E-Business Oracle E-Business Suite is a suite of integrated business applications that enable organizations to make better decisions, reduce costs, and increase performance. Products provide solutions for customer relationship management, service management,"
+            },
+            {
+              "source": "https://docs.oracle.com/en/cloud/saas/financials/",
+              "excerpt": "Oracle Financials 26A - Get Started Go to main content Toggle navigation Sign Out Sign In Search Get Started Cloud Readiness / What's New AI Agents All Books APIs & Schema Videos Bite-Size Learning Top Tasks Use Implement Administer Configure and Extend Analyze and Report Secure Integrate Search Help Center Home Get Started Cloud Readiness / What's New AI Agents All Books APIs & Schema Videos Bite-Size Learning Top Tasks Use Implement Administer Configure and Extend Analyze and Report Secure Int"
+            },
+            {
+              "source": "https://docs.oracle.com/en/cloud/saas/epm-cloud/",
+              "excerpt": "Oracle Cloud Enterprise Performance Management (EPM) - Get Started Go to main content Toggle navigation Sign Out Sign In Search Quickstart Checklists Cloud Readiness / What's New FAQs for Monthly Updates Get Started AI Features FAQs Cloud EPM Platform Training Community Search Help Center Home Quickstart Checklists Cloud Readiness / What's New FAQs for Monthly Updates Get Started AI Features FAQs Cloud EPM Platform Training Community Home Cloud Cloud Applications EPM Cloud Oracle Cloud Enterpris"
+            }
+          ],
+          "rag_diagnostics": {
+            "products": [
+              "epm"
+            ],
+            "local_hits": 5,
+            "vertex_hits": 5,
+            "returned_hits": 5
+          }
+        },
+        "judge_evaluation": {
+          "scores": {
+            "completeness": 30,
+            "correctness": 46,
+            "hallucination": 83
+          },
+          "validation": {
+            "accuracy": 28,
+            "oracle_grounding": 100,
+            "oracle_specificity": 100
+          },
+          "finding_metrics": {
+            "precision": 17,
+            "recall": 20,
+            "false_positive_rate": 83
+          },
+          "latency_metrics": {
+            "time_to_first_useful_output": 29.234,
+            "total_runtime": 38.306
+          },
+          "thresholds": {
+            "approved": {
+              "completeness_min": 85,
+              "correctness_min": 90,
+              "hallucination_max": 15,
+              "oracle_grounding_min": 85
+            },
+            "flagged": {
+              "completeness_min": 70,
+              "correctness_min": 75,
+              "hallucination_max": 30,
+              "oracle_grounding_min": 70
+            }
+          },
+          "status": "rejected",
+          "deliverable": false,
+          "summary": "EPM OIC Flow Extract: completeness 30, correctness 46, hallucination 83, Oracle grounding 100.",
+          "blocking_issues": [
+            "Security issues lack specific Oracle EPM Cloud authentication documentation references",
+            "Error handling recommendations not tied to specific EPM Cloud EDM requirements",
+            "RAG citations are too generic and don't support specific technical claims made",
+            "Unsupported findings detected in the response."
+          ],
+          "recommended_action": "Hold response and review manually."
+        },
+        "final_status": "rejected",
+        "deliverable": false
+      }
+    },
+    {
+      "case_id": "bench-shell-ebs",
+      "artifact_type": "script",
+      "oracle_product": "ebs",
+      "baseline_manual_review_seconds": 420.0,
+      "review_time_reduction_percent": 93.72,
+      "category_scores": {
+        "functional_intent": 100,
+        "data_flow": 100,
+        "complexity_hotspots": 100,
+        "security_findings": 0,
+        "performance_findings": 100,
+        "anti_patterns": 0,
+        "hardcoding_gaps": 100,
+        "error_handling_gaps": 0,
+        "refactor_recommendations": 0
+      },
+      "matched_keywords": {
+        "functional_intent": [
+          "deployment script",
+          "ebs",
+          "patch deployment"
+        ],
+        "data_flow": [
+          "export",
+          "sqlplus",
+          "deploy_patch.sql"
+        ],
+        "complexity_hotspots": [],
+        "security_findings": [],
+        "performance_findings": [],
+        "anti_patterns": [],
+        "hardcoding_gaps": [
+          "apps/apps123",
+          "APPL_TOP"
+        ],
+        "error_handling_gaps": [],
+        "refactor_recommendations": []
+      },
+      "missed_keywords": {
+        "functional_intent": [],
+        "data_flow": [],
+        "complexity_hotspots": [],
+        "security_findings": [
+          "credentials in script"
+        ],
+        "performance_findings": [],
+        "anti_patterns": [
+          "hard-coded credentials"
+        ],
+        "hardcoding_gaps": [],
+        "error_handling_gaps": [
+          "sqlplus exit handling"
+        ],
+        "refactor_recommendations": [
+          "move credentials to secure store"
+        ]
+      },
+      "unsupported_findings": [
+        "{\"pattern\": \"missing error handling for sql*plus execution\", \"impact\": \"high\", \"confidence_score\": 95, \"evidence\": \"no exit code checking or error trapping around sqlplus command\","
+      ],
+      "grounding": {
+        "expected_sources": [
+          "e-business suite",
+          "maintenance"
+        ],
+        "matched_sources": [],
+        "citation_sources": [
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+          "https://docs.oracle.com/cd/E26401_01/"
+        ]
+      },
+      "judge_evaluation": {
+        "scores": {
+          "completeness": 56,
+          "correctness": 55,
+          "hallucination": 17
+        },
+        "validation": {
+          "accuracy": 40,
+          "oracle_grounding": 0,
+          "oracle_specificity": 100
+        },
+        "finding_metrics": {
+          "precision": 33,
+          "recall": 33,
+          "false_positive_rate": 17
+        },
+        "latency_metrics": {
+          "time_to_first_useful_output": 22.205,
+          "total_runtime": 26.385
+        },
+        "thresholds": {
+          "approved": {
+            "completeness_min": 85,
+            "correctness_min": 90,
+            "hallucination_max": 15,
+            "oracle_grounding_min": 85
+          },
+          "flagged": {
+            "completeness_min": 70,
+            "correctness_min": 75,
+            "hallucination_max": 30,
+            "oracle_grounding_min": 70
+          }
+        },
+        "status": "rejected",
+        "deliverable": false,
+        "summary": "EBS Shell Deployment Script: completeness 56, correctness 55, hallucination 17, Oracle grounding 0.",
+        "blocking_issues": [
+          "Minor: Could benefit from more specific Oracle Wallet implementation details",
+          "Minor: RAG citations could be more directly relevant to security practices",
+          "Unsupported findings detected in the response.",
+          "Oracle grounding below target threshold."
+        ],
+        "recommended_action": "Hold response and review manually."
+      },
+      "final_status": "rejected",
+      "deliverable": false,
+      "analysis_item": {
+        "id": "bench-shell-ebs",
+        "label": "EBS Shell Deployment Script",
+        "language": "shell",
+        "original_input": "#!/bin/bash\nexport APPL_TOP=/u01/R122_EBS/EBSapps/appl\nsqlplus apps/apps123 <<EOF\n@deploy_patch.sql\nEOF",
+        "primary_output": {
+          "summary_oneliner": "Shell script exports APPL_TOP and executes deploy_patch.sql via SQL*Plus with hardcoded credentials",
+          "summary_complexity": "Low - simple 4-line script with environment setup and SQL execution",
+          "summary_risk": "High - hardcoded credentials and no error handling in deployment script",
+          "functional_purpose": "Deploys patches to Oracle E-Business Suite by setting APPL_TOP environment and executing SQL deployment script",
+          "business_logic": [
+            "Sets EBS application top directory and runs patch deployment SQL script using apps schema"
+          ],
+          "side_effects": [
+            "Modifies database objects and potentially file system under APPL_TOP during patch deployment"
+          ],
+          "functional_inputs": [
+            "APPL_TOP path, apps schema credentials, deploy_patch.sql file"
+          ],
+          "functional_outputs": [
+            "SQL*Plus execution results and potential database/file system changes"
+          ],
+          "dataflow_steps": [
+            "Export APPL_TOP environment variable to /u01/R122_EBS/EBSapps/appl",
+            "Connect to Oracle database using apps/apps123 credentials",
+            "Execute deploy_patch.sql script within SQL*Plus session"
+          ],
+          "complexity_score": 25,
+          "security_score": 15,
+          "security_issues": [
+            {
+              "issue": "Hardcoded database credentials in shell script",
+              "severity": "Critical",
+              "confidence_score": 100,
+              "evidence": "sqlplus apps/apps123 - credentials visible in plaintext",
+              "standard_reference": "Oracle security best practices require encrypted credential storage"
+            },
+            {
+              "issue": "No validation of APPL_TOP directory existence or permissions",
+              "severity": "Medium",
+              "confidence_score": 90,
+              "evidence": "export APPL_TOP=/u01/R122_EBS/EBSapps/appl - no directory validation",
+              "standard_reference": "Oracle E-Business Suite requires proper APPL_TOP validation per documentation"
+            }
+          ],
+          "antipatterns": [
+            {
+              "pattern": "Missing error handling for SQL*Plus execution",
+              "impact": "High",
+              "confidence_score": 95,
+              "evidence": "No exit code checking or error trapping around sqlplus command",
+              "standard_reference": "Oracle deployment scripts should include proper error handling"
+            },
+            {
+              "pattern": "Direct credential exposure in deployment automation",
+              "impact": "Critical",
+              "confidence_score": 100,
+              "evidence": "apps/apps123 credentials hardcoded in script",
+              "standard_reference": "Oracle security guidelines prohibit plaintext credential storage"
+            }
+          ],
+          "refactor_recommendations": [
+            {
+              "recommendation": "Implement secure credential management using Oracle Wallet or environment variables",
+              "priority": "Critical",
+              "confidence_score": 100,
+              "evidence": "Current hardcoded apps/apps123 credentials",
+              "standard_reference": "Oracle E-Business Suite security best practices require encrypted credential storage"
+            },
+            {
+              "recommendation": "Add APPL_TOP validation and error handling with proper exit codes",
+              "priority": "High",
+              "confidence_score": 95,
+              "evidence": "Missing directory validation and SQL*Plus error checking",
+              "standard_reference": "Oracle deployment automation requires robust error handling per EBS documentation"
+            }
+          ],
+          "jira_tickets": [
+            {
+              "title": "Implement secure credential management for deployment script",
+              "description": "Replace hardcoded apps/apps123 credentials with Oracle Wallet or secure environment variable approach to eliminate security vulnerability",
+              "story_points": 5,
+              "type": "Bug"
+            },
+            {
+              "title": "Add error handling and validation to patch deployment script",
+              "description": "Implement APPL_TOP directory validation and SQL*Plus error checking with proper exit codes for deployment reliability",
+              "story_points": 3,
+              "type": "Bug"
+            }
+          ],
+          "rag_citations": [
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "table summarizes product subdirectories and the types of files each one may contain. Important: Not all products use all the subdirectories listed in this table. Applications Product Subdirectories and File Types Subdirectory Name Description admin The <PROD>_TOP/admin directory contains product-specific files used to upgrade each product. This is in distinction to the <APPL_TOP>/admin directory, which contains upgrade-related files for all products. driver Contains driver files (.drv files) use"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "anager) .req (log file for a concurrent process) Note that log and out subdirectories under a product directory are not used if you choose to set up a common directory for log and output files (FND_TOP is the only exception to this). media Contains image files used to support display of text and graphics on the desktop client. mesg Contains .msb files (binary message files used at runtime), plus language-specific message files such as the US.msb file for American English and D.msb file for Germa"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "instance and a test instance. Most configuration files created by AutoConfig are stored under the Instance Home. Other benefits of the Instance Home include support for read-only file systems . Prior to Release 12.2, all the configuration files modified by AutoConfig were located under $INST_TOP. The following parts of the file system could be made read-only: APPL_TOP, OracleAS 10.1.2 ORACLE_HOME, and OracleAS 10.1.3 ORACLE_HOME. In Release 12.2, the APPL_TOP and FMW_Home contain some configurat"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+              "excerpt": "ed when Oracle E-Business Suite is installed, and subsequently stored in the adconfig.txt file in the $APPL_TOP/admin directory. Once it has been created, this file is used by other Oracle E-Business Suite utilities. Note: adconfig.txt is created with the APPL_TOP file system, and it shows the tiers that have been configured on a particular node. It is distinct from the config.txt file employed by Rapid Install. The fndenv.env file This file sets additional environment variables used by the Orac"
+            },
+            {
+              "source": "https://docs.oracle.com/cd/E26401_01/",
+              "excerpt": "Oracle E-Business Suite Documentation Web Library Release 12.2 Go to main content Home Overview Technology CRM Service Financials HCM MDM Projects Procurement G-Invoicing SCM VCP VCE Oracle E-Business Suite Documentation Web Library Release 12.2 Overview Welcome Welcome to the Oracle E-Business Suite Documentation Web Library for Release 12.2. The Web library contains comprehensive documentation for Oracle E-Business Suite global business applications. Use this library to review and download the"
+            }
+          ],
+          "rag_diagnostics": {
+            "products": [
+              "ebs"
+            ],
+            "local_hits": 5,
+            "vertex_hits": 5,
+            "returned_hits": 5
+          }
+        },
+        "judge_evaluation": {
+          "scores": {
+            "completeness": 56,
+            "correctness": 55,
+            "hallucination": 17
+          },
+          "validation": {
+            "accuracy": 40,
+            "oracle_grounding": 0,
+            "oracle_specificity": 100
+          },
+          "finding_metrics": {
+            "precision": 33,
+            "recall": 33,
+            "false_positive_rate": 17
+          },
+          "latency_metrics": {
+            "time_to_first_useful_output": 22.205,
+            "total_runtime": 26.385
+          },
+          "thresholds": {
+            "approved": {
+              "completeness_min": 85,
+              "correctness_min": 90,
+              "hallucination_max": 15,
+              "oracle_grounding_min": 85
+            },
+            "flagged": {
+              "completeness_min": 70,
+              "correctness_min": 75,
+              "hallucination_max": 30,
+              "oracle_grounding_min": 70
+            }
+          },
+          "status": "rejected",
+          "deliverable": false,
+          "summary": "EBS Shell Deployment Script: completeness 56, correctness 55, hallucination 17, Oracle grounding 0.",
+          "blocking_issues": [
+            "Minor: Could benefit from more specific Oracle Wallet implementation details",
+            "Minor: RAG citations could be more directly relevant to security practices",
+            "Unsupported findings detected in the response.",
+            "Oracle grounding below target threshold."
+          ],
+          "recommended_action": "Hold response and review manually."
+        },
+        "final_status": "rejected",
+        "deliverable": false
+      }
+    }
+  ]
+}

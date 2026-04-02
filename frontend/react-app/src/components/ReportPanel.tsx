@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { NormalizedResult, RagCitation } from '../types';
+import type { BatchAnalysisItem, NormalizedResult } from '../types';
 import { usePersona } from '../context/PersonaContext';
 import { transformResponse, type TabId } from '../lib/transform';
 import { IntentTab } from './tabs/IntentTab';
@@ -12,112 +12,35 @@ import { JiraTab } from './tabs/JiraTab';
 import { TestScenariosTab } from './tabs/TestScenariosTab';
 import { ImpactSummaryTab } from './tabs/ImpactSummaryTab';
 
-// Tab metadata for all possible tabs
 const TAB_META: Record<TabId, { icon: string; label: string }> = {
-  intent: { icon: '📋', label: 'Functional Intent' },
-  dataflow: { icon: '🔄', label: 'Data Flow' },
-  complexity: { icon: '📊', label: 'Complexity' },
-  security: { icon: '🔒', label: 'Security' },
-  antipatterns: { icon: '⚠️', label: 'Anti-patterns' },
-  refactor: { icon: '🛠', label: 'Refactor' },
-  jira: { icon: '🎫', label: 'Jira Tasks' },
-  testscenarios: { icon: '🧪', label: 'Test Scenarios' },
-  impact: { icon: '📈', label: 'Impact Summary' },
+  intent: { icon: 'ðŸ“‹', label: 'Functional Intent' },
+  dataflow: { icon: 'ðŸ”„', label: 'Data Flow' },
+  complexity: { icon: 'ðŸ“Š', label: 'Complexity' },
+  security: { icon: 'ðŸ”’', label: 'Security' },
+  antipatterns: { icon: 'âš ï¸', label: 'Anti-patterns' },
+  refactor: { icon: 'ðŸ› ', label: 'Refactor' },
+  jira: { icon: 'ðŸŽ«', label: 'Jira Tasks' },
+  testscenarios: { icon: 'ðŸ§ª', label: 'Test Scenarios' },
+  impact: { icon: 'ðŸ“ˆ', label: 'Impact Summary' },
 };
-
-function RagCitationsPanel({ citations }: { citations: RagCitation[] }) {
-  const [open, setOpen] = useState(false);
-  if (!citations || citations.length === 0) return null;
-
-  // Extract a readable filename from a gs:// URI
-  const shortName = (src: string) => {
-    const parts = src.split('/');
-    return parts[parts.length - 1] || src;
-  };
-
-  return (
-    <div style={{
-      margin: '16px 0 0 0',
-      borderTop: '1px solid var(--border, #e2e8f0)',
-      paddingTop: 12,
-    }}>
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          color: 'var(--text-muted, #64748b)',
-          padding: '4px 0',
-        }}
-      >
-        <span>📚</span>
-        <span>RAG Sources — Org Standards Applied ({citations.length})</span>
-        <span style={{ marginLeft: 4 }}>{open ? '▲' : '▼'}</span>
-      </button>
-      {open && (
-        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {citations.map((c, i) => (
-            <div
-              key={i}
-              style={{
-                background: 'var(--surface-alt, #f8fafc)',
-                border: '1px solid var(--border, #e2e8f0)',
-                borderRadius: 6,
-                padding: '10px 14px',
-              }}
-            >
-              <div style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: 'var(--accent, #6366f1)',
-                marginBottom: 4,
-                wordBreak: 'break-all',
-              }}>
-                [{i + 1}] {shortName(c.source)}
-              </div>
-              <div style={{
-                fontSize: 12,
-                color: 'var(--text-muted, #64748b)',
-                fontFamily: 'monospace',
-                whiteSpace: 'pre-wrap',
-                lineHeight: 1.5,
-              }}>
-                {c.excerpt}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 type Props = {
   result: NormalizedResult;
+  item?: BatchAnalysisItem | null;
 };
 
-export function ReportPanel({ result }: Props) {
+export function ReportPanel({ result, item }: Props) {
   const { persona, mode } = usePersona();
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Compute transformed persona view (memoized)
   const view = useMemo(
     () => transformResponse(result, persona, mode),
     [result, persona, mode]
   );
 
-  // Active tab — reset to first visible tab when persona changes
   const [tab, setTab] = useState<TabId>(view.visibleTabs[0]);
 
   useEffect(() => {
-    // If current tab is no longer visible for new persona, switch to first
     if (!view.visibleTabs.includes(tab)) {
       setTab(view.visibleTabs[0]);
     }
@@ -129,7 +52,57 @@ export function ReportPanel({ result }: Props) {
 
   return (
     <div className="panel output-panel visible" id="outputPanel" ref={panelRef}>
-      {/* ── Tab bar ── */}
+      {item ? (
+        <div className="judge-overview">
+          <div className="judge-overview-grid">
+            <div className="judge-pane">
+              <div className="summary-kicker">Original Input</div>
+              <div className="judge-pane-text">{item.originalInput}</div>
+            </div>
+            <div className="judge-pane">
+              <div className="summary-kicker">Code Review Findings Summary</div>
+              <div className="judge-score-grid">
+                <span>Security issues: {result.security.issues.length}</span>
+                <span>Anti-patterns: {result.antiPatterns.length}</span>
+                <span>Refactor items: {result.refactorRecommendations.length}</span>
+                <span>Complexity: {result.summary.complexity}</span>
+                <span>Risk: {result.summary.overallRisk}</span>
+              </div>
+              <div className="judge-pane-text">{result.summary.oneliner}</div>
+              {item.judgeEvaluation.blocking_issues.length > 0 ? (
+                <ul className="judge-blocking-list">
+                  {item.judgeEvaluation.blocking_issues.map((issue, index) => (
+                    <li key={index}>{issue}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+            <div className="judge-pane">
+              <div className="summary-kicker">Quality Checks</div>
+              <div className="judge-score-grid">
+                <span>Completeness: {item.judgeEvaluation.scores.completeness}</span>
+                <span>Correctness: {item.judgeEvaluation.scores.correctness}</span>
+                <span>Hallucination: {item.judgeEvaluation.scores.hallucination}</span>
+                <span>Oracle grounding: {item.judgeEvaluation.validation.oracle_grounding}</span>
+                <span>Oracle specificity: {item.judgeEvaluation.validation.oracle_specificity}</span>
+                <span>Detected products: {(result.ragDiagnostics.products ?? []).join(', ') || 'none detected'}</span>
+                <span>Primary provider: {item.primaryRaw.llm_metadata?.provider ?? 'blueverse'}</span>
+                <span>Primary tokens: {item.primaryRaw.llm_metadata?.usage?.total_tokens ?? 'n/a'}</span>
+                <span>Primary cost: ${item.primaryRaw.llm_metadata?.cost_usd ?? 0}</span>
+              </div>
+            </div>
+            <div className="judge-pane">
+              <div className="summary-kicker">RAG Grounding Diagnostics</div>
+              <div className="judge-score-grid">
+                <span>Products: {(result.ragDiagnostics.products ?? []).join(', ') || 'none detected'}</span>
+                <span>Local hits: {result.ragDiagnostics.local_hits ?? 0}</span>
+                <span>Vertex hits: {result.ragDiagnostics.vertex_hits ?? 0}</span>
+                <span>Returned citations: {result.ragDiagnostics.returned_hits ?? 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="tabs">
         {view.visibleTabs.map((tabId) => {
           const meta = TAB_META[tabId];
@@ -146,7 +119,6 @@ export function ReportPanel({ result }: Props) {
         })}
       </div>
 
-      {/* ── Tab content ── */}
       <div className="tab-content active" style={{ display: 'block', padding: 24 }}>
         {tab === 'intent' && <IntentTab view={view} persona={persona} />}
         {tab === 'dataflow' && <DataFlowTab view={view} persona={persona} />}
@@ -157,9 +129,6 @@ export function ReportPanel({ result }: Props) {
         {tab === 'jira' && <JiraTab view={view} persona={persona} />}
         {tab === 'testscenarios' && <TestScenariosTab view={view} />}
         {tab === 'impact' && <ImpactSummaryTab view={view} />}
-
-        {/* ── RAG citations — always shown at bottom of every tab ── */}
-        <RagCitationsPanel citations={result.ragCitations} />
       </div>
     </div>
   );

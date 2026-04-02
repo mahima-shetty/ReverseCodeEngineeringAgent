@@ -61,3 +61,10 @@ You will need to run both the **Backend API** and the **Vite React Frontend** si
 - **Diff Mode Analysis**: Upload unified `.patch` or Git diff chunks natively and CodeLens maps logical differences scoring architectural *Risk Deltas*.
 - **Confidence & Evidence Scoring**: LLM insights are scored securely. Confidence percentages and specific line-code rule `Evidence` are extracted and highlighted directly throughout the UI.
 - **Jira Automation**: Findings are immediately compiled into actionable tickets labeled with `Types` and weighted via `Story Points`. Access them globally from the new **Jira Tasks** workspace tab.
+
+## LLM Integration Notes
+
+- Primary provider: BlueVerse
+- Fallback chain: BlueVerse -> Claude -> OpenAI -> Gemini
+- Token/cost usage logs: `backend/logs/llm_usage.jsonl`
+- Provider/session/prompt strategy details: [ProjectDocs/LLM_INTEGRATION.md](ProjectDocs/LLM_INTEGRATION.md)

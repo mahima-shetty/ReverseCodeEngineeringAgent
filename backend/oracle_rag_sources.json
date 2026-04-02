@@ -1,0 +1,100 @@
+[
+  {
+    "title": "Oracle Applications Documentation Hub",
+    "url": "https://docs.oracle.com/en/applications/",
+    "products": ["fusion", "epm", "ebs"],
+    "domain": "oracle",
+    "keywords": ["oracle applications", "fusion applications", "oracle cloud applications"]
+  },
+  {
+    "title": "Oracle Fusion Applications Documentation",
+    "url": "https://docs.oracle.com/en/cloud/saas/index.html",
+    "products": ["fusion"],
+    "domain": "oracle",
+    "keywords": ["fusion", "saas", "financials", "hcm", "supply chain"]
+  },
+  {
+    "title": "Oracle Fusion Financials Documentation",
+    "url": "https://docs.oracle.com/en/cloud/saas/financials/",
+    "products": ["fusion", "epm"],
+    "domain": "oracle",
+    "keywords": ["fusion financials", "financials", "erp", "payables", "receivables", "gl"]
+  },
+  {
+    "title": "Oracle JD Edwards Documentation Hub",
+    "url": "https://docs.oracle.com/en/applications/jd-edwards/",
+    "products": ["jde"],
+    "domain": "oracle",
+    "keywords": ["jde", "jd edwards", "enterpriseone"]
+  },
+  {
+    "title": "Oracle JD Edwards EnterpriseOne Tools Documentation",
+    "url": "https://docs.oracle.com/cd/E24705_01/",
+    "products": ["jde"],
+    "domain": "oracle",
+    "keywords": ["jde tools", "enterpriseone tools", "jde interoperability", "jde forms"]
+  },
+  {
+    "title": "Oracle E-Business Suite Documentation Library 12.2",
+    "url": "https://docs.oracle.com/cd/E26401_01/",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["ebs", "e-business suite", "r12.2"]
+  },
+  {
+    "title": "Oracle E-Business Suite Technology Library 12.2",
+    "url": "https://docs.oracle.com/cd/E26401_01/nav/technology.htm",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["ebs technology", "patching", "maintenance", "lifecycle management"]
+  },
+  {
+    "title": "Oracle E-Business Suite Concepts",
+    "url": "https://docs.oracle.com/cd/E26401_01/doc.122/e22949/T120505T120509.htm",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["ebs concepts", "concurrent processing", "forms", "workflow"]
+  },
+  {
+    "title": "Oracle Database PL/SQL Language Reference",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["plsql", "pl/sql", "packages", "procedures", "functions", "exceptions", "bulk collect"]
+  },
+  {
+    "title": "Oracle Database SQL Language Reference",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["sql", "oracle sql", "joins", "merge", "analytic functions", "subquery", "ddl", "dml"]
+  },
+  {
+    "title": "Oracle Database Performance Tuning Guide",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/tgdba/",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["sql tuning", "execution plan", "performance", "optimizer", "index", "bind variables"]
+  },
+  {
+    "title": "Oracle Database Secure Coding and Security Guide",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/",
+    "products": ["ebs"],
+    "domain": "oracle",
+    "keywords": ["sql injection", "security", "privileges", "hardcoding", "credential management", "least privilege"]
+  },
+  {
+    "title": "Oracle Cloud EPM Documentation",
+    "url": "https://docs.oracle.com/en/cloud/saas/epm-cloud/",
+    "products": ["epm"],
+    "domain": "oracle",
+    "keywords": ["epm", "planning", "close", "tax reporting", "account reconciliation"]
+  },
+  {
+    "title": "Oracle Enterprise Performance Management Overview",
+    "url": "https://docs.oracle.com/en/cloud/saas/financials/26a/faups/overview-of-enterprise-performance-management.html",
+    "products": ["fusion", "epm"],
+    "domain": "oracle",
+    "keywords": ["epm overview", "budget", "planning", "data exchange"]
+  }
+]

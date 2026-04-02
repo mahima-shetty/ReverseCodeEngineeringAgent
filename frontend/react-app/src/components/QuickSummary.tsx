@@ -1,12 +1,12 @@
-import type { NormalizedResult } from '../types';
-import { riskColor } from '../lib/utils';
+import type { BatchAnalysisItem, BatchAnalysisSummary } from '../types';
 
 type Props = {
-  result: NormalizedResult | null;
+  summary: BatchAnalysisSummary | null;
+  selectedItem: BatchAnalysisItem | null;
 };
 
-export function QuickSummary({ result }: Props) {
-  if (!result) {
+export function QuickSummary({ summary, selectedItem }: Props) {
+  if (!summary) {
     return (
       <div className="panel" id="quickStatsPanel">
         <div className="panel-header">
@@ -17,11 +17,11 @@ export function QuickSummary({ result }: Props) {
         </div>
         <div style={{ padding: 24 }}>
           <div className="empty-state">
-            <div className="icon">🔍</div>
+            <div className="icon">Review</div>
             <p>
               Run analysis to see
               <br />
-              the quick summary here
+              findings and review focus
             </p>
           </div>
         </div>
@@ -29,7 +29,6 @@ export function QuickSummary({ result }: Props) {
     );
   }
 
-  const s = result.summary;
   return (
     <div className="panel" id="quickStatsPanel">
       <div className="panel-header">
@@ -41,64 +40,75 @@ export function QuickSummary({ result }: Props) {
       <div style={{ padding: 24 }}>
         <div className="metrics-row stream-in">
           <div className="metric-chip cyan">
-            <div className="value">{s.linesOfCode || '—'}</div>
-            <div className="label">Lines of Code</div>
+            <div className="value">{summary.total}</div>
+            <div className="label">Batch Inputs</div>
           </div>
-          <div className="metric-chip purple">
-            <div className="value">{s.functions}</div>
-            <div className="label">Functions</div>
+          <div className="metric-chip green">
+            <div className="value">{itemsWithFindings(summary, selectedItem, 'security')}</div>
+            <div className="label">Security Focus</div>
           </div>
           <div className="metric-chip orange">
-            <div className="value">{s.tables}</div>
-            <div className="label">Tables</div>
+            <div className="value">{selectedItem?.primaryResult.antiPatterns.length ?? '—'}</div>
+            <div className="label">Anti-patterns</div>
+          </div>
+          <div className="metric-chip red">
+            <div className="value">{selectedItem?.primaryResult.refactorRecommendations.length ?? '—'}</div>
+            <div className="label">Refactors</div>
           </div>
         </div>
         <div className="section-card stream-in">
-          <h3>🎯 Overview</h3>
-          <p style={{ marginBottom: 12 }}>{s.oneliner}</p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--muted)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  marginBottom: 4,
-                }}
-              >
-                COMPLEXITY
+          <h3>Selected Review</h3>
+          <p style={{ marginBottom: 12 }}>
+            {selectedItem
+              ? `${selectedItem.label}: ${selectedItem.primaryResult.summary.oneliner}`
+              : 'Select an item below to inspect the original input, findings, and evidence.'}
+          </p>
+          {selectedItem ? (
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <div className="summary-kicker">SECURITY ISSUES</div>
+                <div style={{ fontWeight: 800, color: 'var(--danger)' }}>
+                  {selectedItem.primaryResult.security.issues.length}
+                </div>
               </div>
-              <div style={{ fontWeight: 800, color: riskColor(s.complexity) }}>{s.complexity || '—'}</div>
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--muted)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  marginBottom: 4,
-                }}
-              >
-                RISK LEVEL
+              <div>
+                <div className="summary-kicker">ANTI-PATTERNS</div>
+                <div style={{ fontWeight: 800, color: 'var(--warn)' }}>
+                  {selectedItem.primaryResult.antiPatterns.length}
+                </div>
               </div>
-              <div style={{ fontWeight: 800, color: riskColor(s.overallRisk) }}>{s.overallRisk || '—'}</div>
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--muted)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  marginBottom: 4,
-                }}
-              >
-                LANGUAGE
+              <div>
+                <div className="summary-kicker">REFACTOR ITEMS</div>
+                <div style={{ fontWeight: 800, color: 'var(--accent3)' }}>
+                  {selectedItem.primaryResult.refactorRecommendations.length}
+                </div>
               </div>
-              <div style={{ fontWeight: 800, color: 'var(--accent)' }}>{s.language || '—'}</div>
+              <div>
+                <div className="summary-kicker">COMPLEXITY</div>
+                <div style={{ fontWeight: 800, color: 'var(--accent)' }}>
+                  {selectedItem.primaryResult.summary.complexity}
+                </div>
+              </div>
+              <div>
+                <div className="summary-kicker">RISK</div>
+                <div style={{ fontWeight: 800, color: 'var(--accent2)' }}>
+                  {selectedItem.primaryResult.summary.overallRisk}
+                </div>
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
   );
+}
+
+function itemsWithFindings(
+  summary: BatchAnalysisSummary,
+  selectedItem: BatchAnalysisItem | null,
+  type: 'security'
+): number | string {
+  if (!selectedItem) return summary.total;
+  if (type === 'security') return selectedItem.primaryResult.security.issues.length;
+  return summary.total;
 }

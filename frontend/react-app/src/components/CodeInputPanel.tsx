@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import type { Lang } from '../types';
+import type { AnalysisInput, Lang } from '../types';
 
 const LANG_OPTIONS: { id: Lang; label: string }[] = [
   { id: 'sql', label: 'SQL / PL/SQL' },
@@ -18,60 +18,82 @@ const EXT_MAP: Record<string, Lang> = {
 };
 
 type Props = {
-  code: string;
-  onCodeChange: (v: string) => void;
-  currentLang: Lang;
-  onLangChange: (lang: Lang) => void;
+  inputs: AnalysisInput[];
+  onInputsChange: (inputs: AnalysisInput[]) => void;
   onAnalyze: () => void;
   loading: boolean;
   statusText: string;
   statusActive: boolean;
+  onAddInput: () => void;
 };
 
 export function CodeInputPanel({
-  code,
-  onCodeChange,
-  currentLang,
-  onLangChange,
+  inputs,
+  onInputsChange,
   onAnalyze,
   loading,
   statusText,
   statusActive,
+  onAddInput,
 }: Props) {
-  const [fileName, setFileName] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const applyLangFromExt = useCallback(
-    (name: string) => {
-      const ext = name.split('.').pop()?.toLowerCase() ?? '';
-      const lang = EXT_MAP[ext];
-      if (lang) onLangChange(lang);
+  const updateInput = useCallback(
+    (id: string, patch: Partial<AnalysisInput>) => {
+      onInputsChange(inputs.map((item) => (item.id === id ? { ...item, ...patch } : item)));
     },
-    [onLangChange]
+    [inputs, onInputsChange]
   );
 
-  const loadFile = useCallback(
-    (file: File) => {
-      setFileName(`📎 ${file.name}`);
-      applyLangFromExt(file.name);
-      const reader = new FileReader();
-      reader.onload = () => onCodeChange(String(reader.result ?? ''));
-      reader.readAsText(file);
+  const removeInput = useCallback(
+    (id: string) => {
+      if (inputs.length === 1) return;
+      onInputsChange(inputs.filter((item) => item.id !== id));
     },
-    [applyLangFromExt, onCodeChange]
+    [inputs, onInputsChange]
+  );
+
+  const loadFiles = useCallback(
+    async (files: FileList | File[]) => {
+      const loaded = await Promise.all(
+        Array.from(files).map(
+          (file) =>
+            new Promise<AnalysisInput>((resolve) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+                const language = EXT_MAP[ext] ?? 'auto';
+                resolve({
+                  id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${file.name}`,
+                  label: file.name,
+                  code: String(reader.result ?? ''),
+                  language,
+                });
+              };
+              reader.readAsText(file);
+            })
+        )
+      );
+
+      const nonEmpty = loaded.filter((item) => item.code.trim());
+      if (nonEmpty.length > 0) {
+        onInputsChange([...inputs, ...nonEmpty]);
+      }
+    },
+    [inputs, onInputsChange]
   );
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) loadFile(file);
+    const files = e.target.files;
+    if (files?.length) void loadFiles(files);
   };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) loadFile(file);
+    const files = e.dataTransfer.files;
+    if (files?.length) void loadFiles(files);
   };
 
   return (
@@ -79,21 +101,11 @@ export function CodeInputPanel({
       <div className="panel-header">
         <div className="panel-title">
           <div className="dot" />
-          CODE INPUT
+          BATCH INPUTS
         </div>
-      </div>
-
-      <div className="lang-tabs">
-        {LANG_OPTIONS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            className={`lang-tab ${currentLang === id ? 'active' : ''}`}
-            onClick={() => onLangChange(id)}
-          >
-            {label}
-          </button>
-        ))}
+        <button type="button" className="secondary-btn" onClick={onAddInput}>
+          + Add Input
+        </button>
       </div>
 
       <div
@@ -105,25 +117,68 @@ export function CodeInputPanel({
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
       >
-        <input ref={fileRef} type="file" accept=".sql,.groovy,.xml,.json,.sh,.txt" onChange={onFileChange} />
+        <input
+          ref={fileRef}
+          type="file"
+          multiple
+          accept=".sql,.groovy,.xml,.json,.sh,.txt"
+          onChange={onFileChange}
+        />
         <p>
-          ⬆ <span>Drop file here</span> or click to upload
+          <span>Upload multiple files</span> or build a batch manually
         </p>
-        <div className="file-name">{fileName}</div>
+        <div className="file-name">Each file becomes its own review item.</div>
       </div>
 
-      <textarea
-        className="code-area"
-        placeholder={
-          '// Or paste your code directly here...\n// Supports: SQL, PL/SQL, Groovy, OIC/BI XML/JSON, Shell scripts'
-        }
-        value={code}
-        onChange={(e) => onCodeChange(e.target.value)}
-      />
+      <div className="batch-input-list">
+        {inputs.map((input, index) => (
+          <div key={input.id} className="batch-input-card">
+            <div className="batch-input-header">
+              <div className="batch-input-title">Input {index + 1}</div>
+              <div className="batch-input-actions">
+                <select
+                  className="lang-select"
+                  value={input.language}
+                  onChange={(e) => updateInput(input.id, { language: e.target.value as Lang })}
+                >
+                  {LANG_OPTIONS.map(({ id, label }) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="secondary-btn danger"
+                  disabled={inputs.length === 1}
+                  onClick={() => removeInput(input.id)}
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <input
+              className="config-input"
+              type="text"
+              placeholder="Optional label, file name, or use-case"
+              value={input.label}
+              onChange={(e) => updateInput(input.id, { label: e.target.value })}
+            />
+
+            <textarea
+              className="code-area batch"
+              placeholder="// Paste code, prompt, or analysis input here"
+              value={input.code}
+              onChange={(e) => updateInput(input.id, { code: e.target.value })}
+            />
+          </div>
+        ))}
+      </div>
 
       <button type="button" className={`analyze-btn ${loading ? 'loading' : ''}`} disabled={loading} onClick={onAnalyze}>
         <div className="spinner" />
-        <span className="btn-text">{loading ? 'Analyzing...' : '⚡ Analyze Code'}</span>
+        <span className="btn-text">{loading ? 'Running batch...' : 'Run Primary + Judge Flow'}</span>
       </button>
 
       <div className="status-bar">

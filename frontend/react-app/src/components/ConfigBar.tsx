@@ -1,11 +1,13 @@
 type Props = {
   endpoint: string;
   token: string;
+  judgeToken: string;
   onEndpointChange: (v: string) => void;
   onTokenChange: (v: string) => void;
+  onJudgeTokenChange: (v: string) => void;
 };
 
-export function ConfigBar({ endpoint, token, onEndpointChange, onTokenChange }: Props) {
+export function ConfigBar({ endpoint, token, judgeToken, onEndpointChange, onTokenChange, onJudgeTokenChange }: Props) {
   return (
     <div className="config-bar">
       <label>ENDPOINT</label>
@@ -21,10 +23,20 @@ export function ConfigBar({ endpoint, token, onEndpointChange, onTokenChange }: 
       <input
         className="config-input"
         type="password"
-        placeholder="Optional if set in backend/.env"
-        style={{ flex: 1.2 }}
+        placeholder="Primary agent token"
+        style={{ flex: 1 }}
         value={token}
         onChange={(e) => onTokenChange(e.target.value)}
+      />
+      <div className="config-divider" />
+      <label>JUDGE TOKEN</label>
+      <input
+        className="config-input"
+        type="password"
+        placeholder="Required for evaluator agent"
+        style={{ flex: 1 }}
+        value={judgeToken}
+        onChange={(e) => onJudgeTokenChange(e.target.value)}
       />
     </div>
   );
