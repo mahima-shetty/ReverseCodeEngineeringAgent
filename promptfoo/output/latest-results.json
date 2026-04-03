@@ -1,0 +1,540 @@
+{
+  "evalId": "eval-LmR-2026-04-03T12:47:32",
+  "results": {
+    "version": 3,
+    "timestamp": "2026-04-03T12:47:32.205Z",
+    "prompts": [
+      {
+        "id": "57005d5bc8a6c615ccc04b6cbad6803f73b0a920ea2fc1b25ee89154a8f4c210",
+        "raw": "Analyze the supplied artifact and return the final reviewed result.",
+        "label": "Analyze the supplied artifact and return the final reviewed result.",
+        "provider": "codelens-api",
+        "metrics": {
+          "score": 0.4,
+          "testPassCount": 0,
+          "testFailCount": 1,
+          "testErrorCount": 2,
+          "assertPassCount": 2,
+          "assertFailCount": 3,
+          "totalLatencyMs": 10183,
+          "tokenUsage": {
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "total": 0,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            },
+            "assertions": {
+              "total": 0,
+              "prompt": 0,
+              "completion": 0,
+              "cached": 0,
+              "numRequests": 0,
+              "completionDetails": {
+                "reasoning": 0,
+                "acceptedPrediction": 0,
+                "rejectedPrediction": 0
+              }
+            }
+          },
+          "namedScores": {
+            "no_fake_parse_errors": 0,
+            "has_structured_antipatterns": 0,
+            "has_final_output": 1,
+            "explicit_failure_state": 1,
+            "zero_fake_findings": 0
+          },
+          "namedScoresCount": {
+            "no_fake_parse_errors": 1,
+            "has_structured_antipatterns": 1,
+            "has_final_output": 1,
+            "explicit_failure_state": 1,
+            "zero_fake_findings": 1
+          },
+          "cost": 0
+        }
+      }
+    ],
+    "results": [
+      {
+        "cost": 0,
+        "error": "Error: Missing required environment variable: BLUEVERSE_BEARER_TOKEN\n    at requireEnv (file:///C:/Users/msshe/Documents/Projects/ReverseCodeEngineeringAgent/promptfoo/providers/codelens-api.mjs:6:11)\n    at CodeLensApiProvider.callApi (file:///C:/Users/msshe/Documents/Projects/ReverseCodeEngineeringAgent/promptfoo/providers/codelens-api.mjs:20:33)\n    at file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:4397:107\n    at ProviderRateLimitState.executeWithRetry (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/providers-Ch6Mr0gn.js:4985:26)\n    at async RateLimitRegistry.execute (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/providers-Ch6Mr0gn.js:5292:19)\n    at async runEval (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:4397:38)\n    at async processEvalStep (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:5001:17)\n    at async processEvalStepWithTimeout (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:5098:12)\n    at async file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:5214:5",
+        "gradingResult": null,
+        "id": "889d5608-8ccf-4788-bfee-986fcd2db5a5",
+        "latencyMs": 0,
+        "namedScores": {},
+        "prompt": {
+          "raw": "Analyze the supplied artifact and return the final reviewed result.",
+          "label": "Analyze the supplied artifact and return the final reviewed result.",
+          "config": {}
+        },
+        "promptId": "57005d5bc8a6c615ccc04b6cbad6803f73b0a920ea2fc1b25ee89154a8f4c210",
+        "promptIdx": 0,
+        "provider": {
+          "id": "codelens-api",
+          "label": ""
+        },
+        "score": 0,
+        "success": false,
+        "testCase": {
+          "description": "PL SQL anti pattern coverage",
+          "vars": {
+            "id": "eval-plsql-order",
+            "label": "PL SQL anti pattern coverage",
+            "language": "sql",
+            "code": "CREATE OR REPLACE PROCEDURE process_customer_order (\n    p_customer_id   IN NUMBER,\n    p_order_amount  IN NUMBER,\n    p_order_type    IN VARCHAR2,\n    p_region        IN VARCHAR2\n)\nIS\n    v_customer_name      VARCHAR2(200);\n    v_customer_status    VARCHAR2(50);\n    v_discount           NUMBER := 0;\n    v_tax                NUMBER := 0;\n    v_final_amount       NUMBER := 0;\n    v_credit_limit       NUMBER := 0;\n    v_order_count        NUMBER := 0;\n    v_sql                VARCHAR2(4000);\n    v_flag               VARCHAR2(10);\nBEGIN\n    DBMS_OUTPUT.PUT_LINE('Procedure started');\n    SELECT *\n    INTO v_customer_id, v_customer_name, v_customer_status, v_credit_limit\n    FROM (\n        SELECT customer_id, customer_name, status, credit_limit\n        FROM customers\n        WHERE customer_id = p_customer_id\n    );\n    IF p_region = 'INDIA' THEN\n        v_tax := p_order_amount * 18 / 100;\n    ELSIF p_region = 'USA' THEN\n        v_tax := p_order_amount * 7 / 100;\n    ELSE\n        v_tax := p_order_amount * 10 / 100;\n    END IF;\n    v_sql := 'UPDATE customers SET last_order_amount = ' || p_order_amount ||\n             ' WHERE customer_id = ' || p_customer_id;\n    EXECUTE IMMEDIATE v_sql;\n    COMMIT;\nEXCEPTION\n    WHEN OTHERS THEN\n        DBMS_OUTPUT.PUT_LINE('Some error occurred: ' || SQLERRM);\n        ROLLBACK;\nEND;\n/\n",
+            "expected_min_antipatterns": 5
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "metric": "has_final_output",
+              "value": "const result = JSON.parse(output);\nreturn !!result.final_output;\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "no_fake_parse_errors",
+              "value": "const result = JSON.parse(output);\nconst issues = result.final_output?.security_issues || [];\nreturn !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "has_structured_antipatterns",
+              "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.every((item) =>\n  item &&\n  typeof item === 'object' &&\n  typeof item.pattern === 'string' &&\n  typeof item.description === 'string'\n);\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "no_failed_state",
+              "value": "const result = JSON.parse(output);\nreturn result.analysis_state !== 'failed';\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "antipattern_count",
+              "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.length >= context.vars.expected_min_antipatterns;\n"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 0,
+        "vars": {
+          "id": "eval-plsql-order",
+          "label": "PL SQL anti pattern coverage",
+          "language": "sql",
+          "code": "CREATE OR REPLACE PROCEDURE process_customer_order (\n    p_customer_id   IN NUMBER,\n    p_order_amount  IN NUMBER,\n    p_order_type    IN VARCHAR2,\n    p_region        IN VARCHAR2\n)\nIS\n    v_customer_name      VARCHAR2(200);\n    v_customer_status    VARCHAR2(50);\n    v_discount           NUMBER := 0;\n    v_tax                NUMBER := 0;\n    v_final_amount       NUMBER := 0;\n    v_credit_limit       NUMBER := 0;\n    v_order_count        NUMBER := 0;\n    v_sql                VARCHAR2(4000);\n    v_flag               VARCHAR2(10);\nBEGIN\n    DBMS_OUTPUT.PUT_LINE('Procedure started');\n    SELECT *\n    INTO v_customer_id, v_customer_name, v_customer_status, v_credit_limit\n    FROM (\n        SELECT customer_id, customer_name, status, credit_limit\n        FROM customers\n        WHERE customer_id = p_customer_id\n    );\n    IF p_region = 'INDIA' THEN\n        v_tax := p_order_amount * 18 / 100;\n    ELSIF p_region = 'USA' THEN\n        v_tax := p_order_amount * 7 / 100;\n    ELSE\n        v_tax := p_order_amount * 10 / 100;\n    END IF;\n    v_sql := 'UPDATE customers SET last_order_amount = ' || p_order_amount ||\n             ' WHERE customer_id = ' || p_customer_id;\n    EXECUTE IMMEDIATE v_sql;\n    COMMIT;\nEXCEPTION\n    WHEN OTHERS THEN\n        DBMS_OUTPUT.PUT_LINE('Some error occurred: ' || SQLERRM);\n        ROLLBACK;\nEND;\n/\n",
+          "expected_min_antipatterns": 5
+        },
+        "metadata": {
+          "errorContext": {
+            "providerId": "codelens-api",
+            "providerLabel": ""
+          }
+        },
+        "failureReason": 2
+      },
+      {
+        "cost": 0,
+        "error": "Error: Missing required environment variable: BLUEVERSE_BEARER_TOKEN\n    at requireEnv (file:///C:/Users/msshe/Documents/Projects/ReverseCodeEngineeringAgent/promptfoo/providers/codelens-api.mjs:6:11)\n    at CodeLensApiProvider.callApi (file:///C:/Users/msshe/Documents/Projects/ReverseCodeEngineeringAgent/promptfoo/providers/codelens-api.mjs:20:33)\n    at file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:4397:107\n    at ProviderRateLimitState.executeWithRetry (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/providers-Ch6Mr0gn.js:4985:26)\n    at async RateLimitRegistry.execute (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/providers-Ch6Mr0gn.js:5292:19)\n    at async runEval (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:4397:38)\n    at async processEvalStep (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:5001:17)\n    at async processEvalStepWithTimeout (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:5098:12)\n    at async file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:5214:5",
+        "gradingResult": null,
+        "id": "f332c195-7487-471d-8932-a71ed9b227b5",
+        "latencyMs": 0,
+        "namedScores": {},
+        "prompt": {
+          "raw": "Analyze the supplied artifact and return the final reviewed result.",
+          "label": "Analyze the supplied artifact and return the final reviewed result.",
+          "config": {}
+        },
+        "promptId": "57005d5bc8a6c615ccc04b6cbad6803f73b0a920ea2fc1b25ee89154a8f4c210",
+        "promptIdx": 0,
+        "provider": {
+          "id": "codelens-api",
+          "label": ""
+        },
+        "score": 0,
+        "success": false,
+        "testCase": {
+          "description": "Groovy approval rule stays structured",
+          "vars": {
+            "id": "eval-groovy-jde",
+            "label": "Groovy approval rule",
+            "language": "groovy",
+            "code": "def amount = payload.orderAmount as BigDecimal\nif (amount > 10000) {\n  return [approvalRequired: true, approver: 'FIN_DIRECTOR']\n}\nreturn [approvalRequired: false]\n",
+            "expected_risk": "MEDIUM"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "metric": "has_final_output",
+              "value": "const result = JSON.parse(output);\nreturn !!result.final_output;\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "no_fake_parse_errors",
+              "value": "const result = JSON.parse(output);\nconst issues = result.final_output?.security_issues || [];\nreturn !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "has_structured_antipatterns",
+              "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.every((item) =>\n  item &&\n  typeof item === 'object' &&\n  typeof item.pattern === 'string' &&\n  typeof item.description === 'string'\n);\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "no_failed_state",
+              "value": "const result = JSON.parse(output);\nreturn result.analysis_state !== 'failed';\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "has_summary",
+              "value": "const result = JSON.parse(output);\nreturn !!result.final_output?.summary_oneliner;\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "risk_present",
+              "value": "const result = JSON.parse(output);\nreturn typeof result.final_output?.summary_risk === 'string' && result.final_output.summary_risk.length > 0;\n"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 1,
+        "vars": {
+          "id": "eval-groovy-jde",
+          "label": "Groovy approval rule",
+          "language": "groovy",
+          "code": "def amount = payload.orderAmount as BigDecimal\nif (amount > 10000) {\n  return [approvalRequired: true, approver: 'FIN_DIRECTOR']\n}\nreturn [approvalRequired: false]\n",
+          "expected_risk": "MEDIUM"
+        },
+        "metadata": {
+          "errorContext": {
+            "providerId": "codelens-api",
+            "providerLabel": ""
+          }
+        },
+        "failureReason": 2
+      },
+      {
+        "cost": 0,
+        "error": "Custom function returned false\nconst result = JSON.parse(output);\nreturn (result.final_output?.security_issues || []).length === 0 &&\n  (result.final_output?.antipatterns || []).length === 0 &&\n  (result.final_output?.refactor_recommendations || []).length === 0;",
+        "gradingResult": {
+          "pass": false,
+          "score": 0.4,
+          "reason": "Custom function returned false\nconst result = JSON.parse(output);\nreturn (result.final_output?.security_issues || []).length === 0 &&\n  (result.final_output?.antipatterns || []).length === 0 &&\n  (result.final_output?.refactor_recommendations || []).length === 0;",
+          "namedScores": {
+            "no_fake_parse_errors": 0,
+            "has_structured_antipatterns": 0,
+            "has_final_output": 1,
+            "explicit_failure_state": 1,
+            "zero_fake_findings": 0
+          },
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "metric": "has_final_output",
+                "value": "const result = JSON.parse(output);\nreturn !!result.final_output;\n"
+              }
+            },
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Custom function threw error: issues.some is not a function\nStack Trace: TypeError: issues.some is not a function\n    at eval (eval at handleJavascript (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:1343:34), <anonymous>:5:16)\n    at handleJavascript (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:1343:92)\n    at runAssertion (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:3557:24)\n    at file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:3608:24\n    at C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:151:38\n    at replenish (C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:447:21)\n    at C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:452:13\n    at Object.eachOfLimit (C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:478:36)\n    at C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:220:25\n    at new Promise (<anonymous>)\nconst result = JSON.parse(output);\nconst issues = result.final_output?.security_issues || [];\nreturn !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');",
+              "assertion": {
+                "type": "javascript",
+                "metric": "no_fake_parse_errors",
+                "value": "const result = JSON.parse(output);\nconst issues = result.final_output?.security_issues || [];\nreturn !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');\n"
+              }
+            },
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Custom function threw error: antiPatterns.every is not a function\nStack Trace: TypeError: antiPatterns.every is not a function\n    at eval (eval at handleJavascript (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:1343:34), <anonymous>:5:21)\n    at handleJavascript (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:1343:92)\n    at runAssertion (file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:3557:24)\n    at file:///C:/Users/msshe/AppData/Local/npm-cache/_npx/81bbc6515d992ace/node_modules/promptfoo/dist/src/evaluator-BcvOGaam.js:3608:24\n    at C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:151:38\n    at replenish (C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:447:21)\n    at C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:452:13\n    at Object.eachOfLimit (C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:478:36)\n    at C:\\Users\\msshe\\AppData\\Local\\npm-cache\\_npx\\81bbc6515d992ace\\node_modules\\async\\dist\\async.js:220:25\n    at new Promise (<anonymous>)\nconst result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.every((item) =>\n  item &&\n  typeof item === 'object' &&\n  typeof item.pattern === 'string' &&\n  typeof item.description === 'string'\n);",
+              "assertion": {
+                "type": "javascript",
+                "metric": "has_structured_antipatterns",
+                "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.every((item) =>\n  item &&\n  typeof item === 'object' &&\n  typeof item.pattern === 'string' &&\n  typeof item.description === 'string'\n);\n"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "metric": "explicit_failure_state",
+                "value": "const result = JSON.parse(output);\nreturn result.analysis_state === 'failed';\n"
+              }
+            },
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Custom function returned false\nconst result = JSON.parse(output);\nreturn (result.final_output?.security_issues || []).length === 0 &&\n  (result.final_output?.antipatterns || []).length === 0 &&\n  (result.final_output?.refactor_recommendations || []).length === 0;",
+              "assertion": {
+                "type": "javascript",
+                "metric": "zero_fake_findings",
+                "value": "const result = JSON.parse(output);\nreturn (result.final_output?.security_issues || []).length === 0 &&\n  (result.final_output?.antipatterns || []).length === 0 &&\n  (result.final_output?.refactor_recommendations || []).length === 0;\n"
+              }
+            }
+          ]
+        },
+        "id": "7c5e35bd-48a0-4f00-8a69-59e7cb25b32f",
+        "latencyMs": 10183,
+        "namedScores": {
+          "no_fake_parse_errors": 0,
+          "has_structured_antipatterns": 0,
+          "has_final_output": 1,
+          "explicit_failure_state": 1,
+          "zero_fake_findings": 0
+        },
+        "prompt": {
+          "raw": "Analyze the supplied artifact and return the final reviewed result.",
+          "label": "Analyze the supplied artifact and return the final reviewed result.",
+          "config": {}
+        },
+        "promptId": "57005d5bc8a6c615ccc04b6cbad6803f73b0a920ea2fc1b25ee89154a8f4c210",
+        "promptIdx": 0,
+        "provider": {
+          "id": "codelens-api",
+          "label": ""
+        },
+        "response": {
+          "output": "{\"id\":\"eval-auth-failure\",\"label\":\"Auth failure behavior\",\"language\":\"sql\",\"original_input\":\"SELECT invoice_num FROM ap_invoices_all;\",\"primary_output\":{\"summary_oneliner\":\"Primary agent failed: All configured LLM providers failed for primary. Attempts: [{'provider': 'blueverse', 'status': 'failed', 'detail': 'Invalid or expired bearer token', 'duration_seconds': 0.642}, {'provider': 'claud\",\"summary_complexity\":\"UNKNOWN\",\"summary_risk\":\"HIGH\",\"functional_purpose\":\"\",\"business_logic\":[],\"side_effects\":[],\"functional_inputs\":\"[]\",\"functional_outputs\":\"[]\",\"dataflow_steps\":\"[]\",\"complexity_score\":0,\"security_score\":0,\"security_issues\":\"[]\",\"antipatterns\":\"[]\",\"refactor_recommendations\":\"[]\",\"jira_tickets\":\"[]\"},\"final_output\":{\"summary_oneliner\":\"Analysis failed. No reviewed result is available.\",\"summary_complexity\":\"UNKNOWN\",\"summary_risk\":\"HIGH\",\"functional_purpose\":\"\",\"business_logic\":[],\"side_effects\":[],\"functional_inputs\":\"[]\",\"functional_outputs\":\"[]\",\"dataflow_steps\":\"[]\",\"complexity_score\":0,\"security_score\":0,\"security_issues\":\"[]\",\"antipatterns\":\"[]\",\"refactor_recommendations\":\"[]\",\"jira_tickets\":\"[]\"},\"judge_evaluation\":{\"scores\":{\"completeness\":0,\"correctness\":0,\"hallucination\":100},\"validation\":{\"accuracy\":0,\"oracle_grounding\":0,\"oracle_specificity\":0},\"finding_metrics\":{\"precision\":0,\"recall\":0,\"false_positive_rate\":100},\"latency_metrics\":{\"time_to_first_useful_output\":0,\"total_runtime\":10.139},\"thresholds\":{\"approved\":{\"completeness_min\":85,\"correctness_min\":90,\"hallucination_max\":15,\"oracle_grounding_min\":85},\"flagged\":{\"completeness_min\":70,\"correctness_min\":75,\"hallucination_max\":30,\"oracle_grounding_min\":70}},\"status\":\"rejected\",\"deliverable\":false,\"summary\":\"Primary agent failed before judge review: All configured LLM providers failed for primary. Attempts: [{'provider': 'blueverse', 'status': 'failed', 'detail': 'Invalid or expired bearer token', 'duration_seconds': 0.642}, {'provider': 'claude', 'status': 'failed', 'detail': 'Claude fallback not configured', 'duration_seconds': 0.0}, {'provider': 'openai', 'status': 'failed', 'detail': 'OpenAI fallback not configured', 'duration_seconds': 0.0}, {'provider': 'gemini', 'status': 'failed', 'detail': \",\"blocking_issues\":[\"Primary agent failed before judge review: All configured LLM providers failed for primary. Attempts: [{'provider': 'blueverse', 'status': 'failed', 'detail': 'Invalid or expired bearer token', 'duration_seconds': 0.642}, {'provider': 'claude', 'status': 'failed', 'detail': 'Claude fallback not configured', 'duration_seconds': 0.0}, {'provider': 'openai', 'status': 'failed', 'detail': 'OpenAI fallback not configured', 'duration_seconds': 0.0}, {'provider': 'gemini', 'status': 'failed', 'detail': \"],\"recommended_action\":\"Hold response and review manually.\",\"corrected_output\":null},\"final_status\":\"rejected\",\"deliverable\":false,\"analysis_state\":\"failed\",\"render_source\":\"none\",\"failure_reason\":\"All configured LLM providers failed for primary. Attempts: [{'provider': 'blueverse', 'status': 'failed', 'detail': 'Invalid or expired bearer token', 'duration_seconds': 0.642}, {'provider': 'claude', 'status': 'failed', 'detail': 'Claude fallback not configured', 'duration_seconds': 0.0}, {'provider': 'openai', 'status': 'failed', 'detail': 'OpenAI fallback not configured', 'duration_seconds': 0.0}, {'provider': 'gemini', 'status': 'failed', 'detail': 'Gemini fallback not configured', 'duratio\",\"session_id\":\"promptfoo-1775220452300\"}",
+          "metadata": {
+            "final_status": "rejected",
+            "analysis_state": "failed",
+            "render_source": "none"
+          }
+        },
+        "score": 0.4,
+        "success": false,
+        "testCase": {
+          "description": "Failed auth must not fabricate findings",
+          "vars": {
+            "id": "eval-auth-failure",
+            "label": "Auth failure behavior",
+            "language": "sql",
+            "token": "invalid-token-for-test",
+            "judgeToken": "invalid-token-for-test",
+            "code": "SELECT invoice_num FROM ap_invoices_all;\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "metric": "has_final_output",
+              "value": "const result = JSON.parse(output);\nreturn !!result.final_output;\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "no_fake_parse_errors",
+              "value": "const result = JSON.parse(output);\nconst issues = result.final_output?.security_issues || [];\nreturn !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "has_structured_antipatterns",
+              "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.every((item) =>\n  item &&\n  typeof item === 'object' &&\n  typeof item.pattern === 'string' &&\n  typeof item.description === 'string'\n);\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "explicit_failure_state",
+              "value": "const result = JSON.parse(output);\nreturn result.analysis_state === 'failed';\n"
+            },
+            {
+              "type": "javascript",
+              "metric": "zero_fake_findings",
+              "value": "const result = JSON.parse(output);\nreturn (result.final_output?.security_issues || []).length === 0 &&\n  (result.final_output?.antipatterns || []).length === 0 &&\n  (result.final_output?.refactor_recommendations || []).length === 0;\n"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 2,
+        "vars": {
+          "id": "eval-auth-failure",
+          "label": "Auth failure behavior",
+          "language": "sql",
+          "token": "invalid-token-for-test",
+          "judgeToken": "invalid-token-for-test",
+          "code": "SELECT invoice_num FROM ap_invoices_all;\n"
+        },
+        "metadata": {
+          "final_status": "rejected",
+          "analysis_state": "failed",
+          "render_source": "none",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 1
+      }
+    ],
+    "stats": {
+      "successes": 0,
+      "failures": 1,
+      "errors": 2,
+      "tokenUsage": {
+        "prompt": 0,
+        "completion": 0,
+        "cached": 0,
+        "total": 0,
+        "numRequests": 1,
+        "completionDetails": {
+          "reasoning": 0,
+          "acceptedPrediction": 0,
+          "rejectedPrediction": 0
+        },
+        "assertions": {
+          "total": 0,
+          "prompt": 0,
+          "completion": 0,
+          "cached": 0,
+          "numRequests": 0,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0
+          }
+        }
+      },
+      "durationMs": 10261,
+      "evaluationDurationMs": 10261
+    }
+  },
+  "config": {
+    "tags": {},
+    "description": "CodeLens evaluation suite for judge reviewed analysis output",
+    "prompts": [
+      "Analyze the supplied artifact and return the final reviewed result."
+    ],
+    "providers": [
+      "file://promptfoo/providers/codelens-api.mjs"
+    ],
+    "tests": [
+      {
+        "description": "PL SQL anti pattern coverage",
+        "vars": {
+          "id": "eval-plsql-order",
+          "label": "PL SQL anti pattern coverage",
+          "language": "sql",
+          "code": "CREATE OR REPLACE PROCEDURE process_customer_order (\n    p_customer_id   IN NUMBER,\n    p_order_amount  IN NUMBER,\n    p_order_type    IN VARCHAR2,\n    p_region        IN VARCHAR2\n)\nIS\n    v_customer_name      VARCHAR2(200);\n    v_customer_status    VARCHAR2(50);\n    v_discount           NUMBER := 0;\n    v_tax                NUMBER := 0;\n    v_final_amount       NUMBER := 0;\n    v_credit_limit       NUMBER := 0;\n    v_order_count        NUMBER := 0;\n    v_sql                VARCHAR2(4000);\n    v_flag               VARCHAR2(10);\nBEGIN\n    DBMS_OUTPUT.PUT_LINE('Procedure started');\n    SELECT *\n    INTO v_customer_id, v_customer_name, v_customer_status, v_credit_limit\n    FROM (\n        SELECT customer_id, customer_name, status, credit_limit\n        FROM customers\n        WHERE customer_id = p_customer_id\n    );\n    IF p_region = 'INDIA' THEN\n        v_tax := p_order_amount * 18 / 100;\n    ELSIF p_region = 'USA' THEN\n        v_tax := p_order_amount * 7 / 100;\n    ELSE\n        v_tax := p_order_amount * 10 / 100;\n    END IF;\n    v_sql := 'UPDATE customers SET last_order_amount = ' || p_order_amount ||\n             ' WHERE customer_id = ' || p_customer_id;\n    EXECUTE IMMEDIATE v_sql;\n    COMMIT;\nEXCEPTION\n    WHEN OTHERS THEN\n        DBMS_OUTPUT.PUT_LINE('Some error occurred: ' || SQLERRM);\n        ROLLBACK;\nEND;\n/\n",
+          "expected_min_antipatterns": 5
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "metric": "no_failed_state",
+            "value": "const result = JSON.parse(output);\nreturn result.analysis_state !== 'failed';\n"
+          },
+          {
+            "type": "javascript",
+            "metric": "antipattern_count",
+            "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.length >= context.vars.expected_min_antipatterns;\n"
+          }
+        ]
+      },
+      {
+        "description": "Groovy approval rule stays structured",
+        "vars": {
+          "id": "eval-groovy-jde",
+          "label": "Groovy approval rule",
+          "language": "groovy",
+          "code": "def amount = payload.orderAmount as BigDecimal\nif (amount > 10000) {\n  return [approvalRequired: true, approver: 'FIN_DIRECTOR']\n}\nreturn [approvalRequired: false]\n",
+          "expected_risk": "MEDIUM"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "metric": "no_failed_state",
+            "value": "const result = JSON.parse(output);\nreturn result.analysis_state !== 'failed';\n"
+          },
+          {
+            "type": "javascript",
+            "metric": "has_summary",
+            "value": "const result = JSON.parse(output);\nreturn !!result.final_output?.summary_oneliner;\n"
+          },
+          {
+            "type": "javascript",
+            "metric": "risk_present",
+            "value": "const result = JSON.parse(output);\nreturn typeof result.final_output?.summary_risk === 'string' && result.final_output.summary_risk.length > 0;\n"
+          }
+        ]
+      },
+      {
+        "description": "Failed auth must not fabricate findings",
+        "vars": {
+          "id": "eval-auth-failure",
+          "label": "Auth failure behavior",
+          "language": "sql",
+          "token": "[REDACTED]",
+          "judgeToken": "invalid-token-for-test",
+          "code": "SELECT invoice_num FROM ap_invoices_all;\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "metric": "explicit_failure_state",
+            "value": "const result = JSON.parse(output);\nreturn result.analysis_state === 'failed';\n"
+          },
+          {
+            "type": "javascript",
+            "metric": "zero_fake_findings",
+            "value": "const result = JSON.parse(output);\nreturn (result.final_output?.security_issues || []).length === 0 &&\n  (result.final_output?.antipatterns || []).length === 0 &&\n  (result.final_output?.refactor_recommendations || []).length === 0;\n"
+          }
+        ]
+      }
+    ],
+    "scenarios": [],
+    "env": {},
+    "defaultTest": {
+      "assert": [
+        {
+          "type": "javascript",
+          "metric": "has_final_output",
+          "value": "const result = JSON.parse(output);\nreturn !!result.final_output;\n"
+        },
+        {
+          "type": "javascript",
+          "metric": "no_fake_parse_errors",
+          "value": "const result = JSON.parse(output);\nconst issues = result.final_output?.security_issues || [];\nreturn !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');\n"
+        },
+        {
+          "type": "javascript",
+          "metric": "has_structured_antipatterns",
+          "value": "const result = JSON.parse(output);\nconst antiPatterns = result.final_output?.antipatterns || [];\nreturn antiPatterns.every((item) =>\n  item &&\n  typeof item === 'object' &&\n  typeof item.pattern === 'string' &&\n  typeof item.description === 'string'\n);\n"
+        }
+      ],
+      "vars": {},
+      "options": {},
+      "metadata": {}
+    },
+    "outputPath": [
+      "promptfoo/output/latest-results.json"
+    ],
+    "extensions": [],
+    "metadata": {},
+    "evaluateOptions": {
+      "maxConcurrency": 1,
+      "repeat": 1,
+      "cache": true,
+      "timeoutMs": 180000
+    }
+  },
+  "shareableUrl": null,
+  "metadata": {
+    "promptfooVersion": "0.121.3",
+    "nodeVersion": "v24.12.0",
+    "platform": "win32",
+    "arch": "x64",
+    "exportedAt": "2026-04-03T12:47:42.654Z",
+    "evaluationCreatedAt": "2026-04-03T12:47:32.205Z"
+  }
+}
