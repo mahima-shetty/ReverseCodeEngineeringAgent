@@ -262,5 +262,88 @@
     "chunks": [
       "Oracle AI Database Database PL/SQL Language Reference, 26ai Previous Next JavaScript must be enabled to correctly display this content Oracle® AI Database Database PL/SQL Language Reference 26ai G43964-04 January 2026 Title and Copyright Information Oracle AI Database Database PL/SQL Language Reference, 26ai G43964-04 Copyright © 1996,2026, Oracle and/or its affiliates. Primary Author: Sarah Hirschfeld Contributing Authors: P. Huey, L. Jayapalan Contributors: D. Alpern, S. Agrawal, M. Bach, H. Baer, S. Castledine, T. Chang, B. Cheng, R. Dani, R. Decker, C. Dietrich, M. DiPaolo, C. Iyer, A. Kruglikov, N. Le, W. Li, P. Miller, V. Moore, T. Raney, R. Rajagopalan, C. Saxon, I. Stocks, C. Wetherell, S. Wolicki, G. Viswanathan, M. Yang"
     ]
+  },
+  {
+    "title": "Oracle Database PL/SQL Language Reference",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/",
+    "products": [
+      "ebs"
+    ],
+    "keywords": [
+      "plsql",
+      "pl/sql",
+      "packages",
+      "procedures",
+      "functions",
+      "exceptions",
+      "bulk collect"
+    ],
+    "domain": "oracle",
+    "text": "Oracle Database Database PL/SQL Language Reference, 19c\nPrevious\nNext\nJavaScript must be enabled to correctly display this content\nOracle® Database\nDatabase PL/SQL Language Reference\n19c\nE96448-08\nJuly 2025\nTitle and Copyright Information\nOracle Database Database PL/SQL Language Reference, 19c\nE96448-08\nCopyright ©\n1996,2025,\nOracle and/or its affiliates.\nPrimary Author: Sarah Hirschfeld\nContributing Authors: L. Morin, S. Moore, L. Jayapalan, P. Huey, E. Belden, K. Rich, V. Moore\nContributors: D. Alpern, S. Agrawal, H. Baer, S. Castledine, T. Chang, B. Cheng, R. Dani, R. Decker, C. Iyer, A. Kruglikov, N. Le, W. Li, B. Llewellyn, A. Popescu, T. Raney, R. Rajagopalan, I. Stocks, C. Wetherell, S. Wolicki, G. Viswanathan, M. Yang",
+    "chunks": [
+      "Oracle Database Database PL/SQL Language Reference, 19c Previous Next JavaScript must be enabled to correctly display this content Oracle® Database Database PL/SQL Language Reference 19c E96448-08 July 2025 Title and Copyright Information Oracle Database Database PL/SQL Language Reference, 19c E96448-08 Copyright © 1996,2025, Oracle and/or its affiliates. Primary Author: Sarah Hirschfeld Contributing Authors: L. Morin, S. Moore, L. Jayapalan, P. Huey, E. Belden, K. Rich, V. Moore Contributors: D. Alpern, S. Agrawal, H. Baer, S. Castledine, T. Chang, B. Cheng, R. Dani, R. Decker, C. Iyer, A. Kruglikov, N. Le, W. Li, B. Llewellyn, A. Popescu, T. Raney, R. Rajagopalan, I. Stocks, C. Wetherell, S. Wolicki, G. Viswanathan, M. Yang"
+    ]
+  },
+  {
+    "title": "Oracle Database SQL Language Reference",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/",
+    "products": [
+      "ebs"
+    ],
+    "keywords": [
+      "sql",
+      "oracle sql",
+      "joins",
+      "merge",
+      "analytic functions",
+      "subquery",
+      "ddl",
+      "dml"
+    ],
+    "domain": "oracle",
+    "text": "Oracle Database SQL Language Reference, 19c\nPrevious\nNext\nJavaScript must be enabled to correctly display this content\nOracle® Database\nSQL Language Reference\n19c\nE96310-34\nNovember 2025\nTitle and Copyright Information\nOracle Database SQL Language Reference, 19c\nE96310-34\nCopyright ©\n1996,2025,\nOracle and/or its affiliates.\nPrimary Author: Usha Krishnamurthy\nContributors: Mary Beth Roeser, Drew Adams, Lance Ashdown, Vikas Arora, Thomas Baby, Hermann Baer, Yasin Baskan, Nigel Bayliss, Eric Belden, Rajesh Bhatiya, Atif Chaudhry, Nelson Corcoran, Dinesh Das, Mark Dilman, Sudha Duraiswamy, Yanfei Fan, Mike Gleeson, Laura Solis Gomez, Naveen Gopal, Beda Hammerschmidt, Patricia Huey, Peter Knaggs, Sriram Krishnamurthy, Andre Kruglikov, Praveen Kumar, Bryn Llewellyn, Yunrui Li, Roger MacNicol, Darshan Maniyani, David McDermid, Jan Michels, Rahil Mir, Gopal Mulagund, Ian Neall, Padmaja Potineni, Hanlin Qian, Giridhar Ravipati, Prashanth Shantaveerappa, Wayne Smith, Samarjeet Tomar, Nirav Vyas, Alan Williams, Andy Witkowski, Sergiusz Wolicki, Tsae-Feng Yu, Weiran Zhang",
+    "chunks": [
+      "Oracle Database SQL Language Reference, 19c Previous Next JavaScript must be enabled to correctly display this content Oracle® Database SQL Language Reference 19c E96310-34 November 2025 Title and Copyright Information Oracle Database SQL Language Reference, 19c E96310-34 Copyright © 1996,2025, Oracle and/or its affiliates. Primary Author: Usha Krishnamurthy Contributors: Mary Beth Roeser, Drew Adams, Lance Ashdown, Vikas Arora, Thomas Baby, Hermann Baer, Yasin Baskan, Nigel Bayliss, Eric Belden, Rajesh Bhatiya, Atif Chaudhry, Nelson Corcoran, Dinesh Das, Mark Dilman, Sudha Duraiswamy, Yanfei Fan, Mike Gleeson, Laura Solis Gomez, Naveen Gopal, Beda Hammerschmidt, Patricia Huey, Peter Knaggs, Sriram Krishnamurthy, Andre Kruglikov, Praveen Kumar, Bryn Llewellyn, Yunrui Li, Roger MacNicol, Darshan Maniyani, David McDermid, Jan Michels, Rahil Mir, Gopal Mulagund, Ian Neall, Padmaja Potineni, Hanlin Qian, Giridhar Ravipati, Prashanth Shantaveerappa, Wayne Smith, Samarjeet Tomar, Nirav Vyas, Alan Williams, Andy Witkowski, Sergiusz Wolicki, Tsae-Feng Yu, Weiran Zhang"
+    ]
+  },
+  {
+    "title": "Oracle Database Performance Tuning Guide",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/tgdba/",
+    "products": [
+      "ebs"
+    ],
+    "keywords": [
+      "sql tuning",
+      "execution plan",
+      "performance",
+      "optimizer",
+      "index",
+      "bind variables"
+    ],
+    "domain": "oracle",
+    "text": "Oracle Database Database Performance Tuning Guide, 19c\nPrevious\nNext\nJavaScript must be enabled to correctly display this content\nDatabase Performance Tuning Guide\nOracle® Database\nOracle® Database\nDatabase Performance Tuning Guide\n19c\nE96347-06\nSeptember 2022\nTitle and Copyright Information\nOracle Database Database Performance Tuning Guide, 19c\nE96347-06\nCopyright ©\n2007, 2020, Oracle and/or its affiliates.\nContributing Author: Glenn Maxey\nPrimary Authors: Rajesh Bhatiya, Immanuel Chan, Lance Ashdown\nContributors: Hermann Baer, Deba Chatterjee, Maria Colgan, Mikael Fries, Prabhaker Gongloor, Kevin Jernigan, Sue K. Lee, William Lee, David McDermid, Uri Shaft, Oscar Suro, Trung Tran, Sriram Vrinda, Yujun Wang",
+    "chunks": [
+      "Oracle Database Database Performance Tuning Guide, 19c Previous Next JavaScript must be enabled to correctly display this content Database Performance Tuning Guide Oracle® Database Oracle® Database Database Performance Tuning Guide 19c E96347-06 September 2022 Title and Copyright Information Oracle Database Database Performance Tuning Guide, 19c E96347-06 Copyright © 2007, 2020, Oracle and/or its affiliates. Contributing Author: Glenn Maxey Primary Authors: Rajesh Bhatiya, Immanuel Chan, Lance Ashdown Contributors: Hermann Baer, Deba Chatterjee, Maria Colgan, Mikael Fries, Prabhaker Gongloor, Kevin Jernigan, Sue K. Lee, William Lee, David McDermid, Uri Shaft, Oscar Suro, Trung Tran, Sriram Vrinda, Yujun Wang"
+    ]
+  },
+  {
+    "title": "Oracle Database Secure Coding and Security Guide",
+    "url": "https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/",
+    "products": [
+      "ebs"
+    ],
+    "keywords": [
+      "sql injection",
+      "security",
+      "privileges",
+      "hardcoding",
+      "credential management",
+      "least privilege"
+    ],
+    "domain": "oracle",
+    "text": "Oracle Database Security Guide, 19c\nPrevious\nNext\nJavaScript must be enabled to correctly display this content\nOracle® Database\nSecurity Guide\n19c\nE96299-56\nJanuary 2026\nTitle and Copyright Information\nOracle Database Security Guide, 19c\nE96299-56\nCopyright ©\n1996,2026,\nOracle and/or its affiliates.\nPrimary Author: Patricia Huey\nContributing Author: Sumit Jeloka\nContributors: Suraj Adhikari, Thomas Baby, Tammy Bednar, Todd Bottger, Sanjay Bharadwaj, Leo Cloutier, Sudha Duraiswamy, Naveen Gopal, Rishabh Gupta, Yong Hu, Srinidhi Kayoor , Peter Knaggs, Andre Kruklikov, Sanjay Kulhari, Anup A. Kumar, Bryn Llewellyn, Dah-Yoh Lim, Rahil Mir, Hari Mohankumar, Gopal Mulagund, Abhishek Munnolimath, Paul Needham, Robert Pang, Dilip Raj, Kumar Rajamani, Kathy Rich, Saikat Saha, Vipin Samar, Saravana Soundararajan, James Spiller, Srividya Tata, Kamal Tbeileh, Can Tuzla, Anand Verma, Patrick Wheeler, Peter H. Wong",
+    "chunks": [
+      "Oracle Database Security Guide, 19c Previous Next JavaScript must be enabled to correctly display this content Oracle® Database Security Guide 19c E96299-56 January 2026 Title and Copyright Information Oracle Database Security Guide, 19c E96299-56 Copyright © 1996,2026, Oracle and/or its affiliates. Primary Author: Patricia Huey Contributing Author: Sumit Jeloka Contributors: Suraj Adhikari, Thomas Baby, Tammy Bednar, Todd Bottger, Sanjay Bharadwaj, Leo Cloutier, Sudha Duraiswamy, Naveen Gopal, Rishabh Gupta, Yong Hu, Srinidhi Kayoor , Peter Knaggs, Andre Kruklikov, Sanjay Kulhari, Anup A. Kumar, Bryn Llewellyn, Dah-Yoh Lim, Rahil Mir, Hari Mohankumar, Gopal Mulagund, Abhishek Munnolimath, Paul Needham, Robert Pang, Dilip Raj, Kumar Rajamani, Kathy Rich, Saikat Saha, Vipin Samar, Saravana Soundararajan, James Spiller, Srividya Tata, Kamal Tbeileh, Can Tuzla, Anand Verma, Patrick Wheeler, Peter H. Wong"
+    ]
   }
 ]

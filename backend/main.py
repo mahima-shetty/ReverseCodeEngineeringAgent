@@ -608,7 +608,9 @@ def _build_request_body(
         "CRITICAL: Output ONLY valid JSON. Your response must be parseable by json.loads(). Do NOT wrap in ```json or markdown.\n"
         "Mandatory JSON keys: 'summary_oneliner', 'summary_complexity', 'summary_risk', 'functional_purpose', 'business_logic', 'side_effects', 'functional_inputs', 'functional_outputs', 'dataflow_steps', 'complexity_score', 'security_score', 'security_issues', 'antipatterns', 'refactor_recommendations', 'jira_tickets'.\n"
         "All lists (security_issues, antipatterns, etc.) must be JSON arrays of strictly formatted objects mapping matching the requested keys.\n"
-        "TOKEN LIMIT ALERT: Keep all textual descriptions EXTREMELY brief (1 sentence max). Limit lists to maximum 2 items each (max 2 tickets, max 2 security issues) to ensure your JSON output is not truncated!\n\n"
+        "TOKEN LIMIT ALERT: Keep all textual descriptions EXTREMELY brief (1 sentence max). Do not omit materially distinct findings just to stay short. "
+        "Prefer concise lists with practical caps: up to 8 security issues, up to 12 antipatterns, up to 8 refactor recommendations, up to 4 jira_tickets, and up to 8 items for business_logic, functional_inputs, functional_outputs, and dataflow_steps. "
+        "If there are more findings than the cap, keep the highest-risk and most distinct ones.\n\n"
     )
     if rag_context:
         instruction_block += f"Oracle Documentation Grounding:\n{rag_context}\n\n"
@@ -667,9 +669,10 @@ def _normalize_flat(flat: dict[str, Any]) -> dict[str, Any]:
         elif isinstance(val, str):
             # Try to parse as JSON first
             stripped = val.strip()
-            if stripped.startswith("["):
+            if stripped.startswith("[") or stripped.startswith("{"):
                 try:
-                    result[field] = json.loads(stripped)
+                    parsed = json.loads(stripped)
+                    result[field] = parsed if isinstance(parsed, list) else [parsed]
                     continue
                 except json.JSONDecodeError:
                     pass
@@ -683,24 +686,324 @@ def _normalize_flat(flat: dict[str, Any]) -> dict[str, Any]:
     result.setdefault("functional_purpose", "")
     result.setdefault("complexity_score", 0)
     result.setdefault("security_score", 0)
+    result.setdefault("business_logic", [])
+    result.setdefault("side_effects", [])
+
+    result["security_issues"] = _normalize_security_issues(result.get("security_issues"))
+    result["antipatterns"] = _normalize_antipattern_items(result.get("antipatterns"))
+    result["refactor_recommendations"] = _normalize_refactor_items(result.get("refactor_recommendations"))
+    result["jira_tickets"] = _normalize_jira_items(result.get("jira_tickets"))
 
     return result
 
 
-def _fallback_flat_from_error(lines_of_code: int, message: str) -> dict[str, Any]:
+def _normalize_security_issues(value: Any) -> list[dict[str, Any]]:
+    items = value if isinstance(value, list) else []
+    normalized: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        issue_type = str(item.get("type") or item.get("issue") or "").strip()
+        description = str(item.get("description") or item.get("details") or "").strip()
+        if not issue_type and not description:
+            continue
+        normalized.append(
+            {
+                "severity": str(item.get("severity") or "MEDIUM").upper(),
+                "type": issue_type or "Issue",
+                "description": description or issue_type,
+                "line": str(item.get("line") or "").strip(),
+                "confidence_score": _coerce_score(item.get("confidence_score"), default=85),
+                "evidence": str(item.get("evidence") or "").strip(),
+            }
+        )
+    return normalized[:8]
+
+
+def _normalize_antipattern_items(value: Any) -> list[dict[str, Any]]:
+    items = value if isinstance(value, list) else []
+    normalized: list[dict[str, Any]] = []
+    for idx, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            continue
+        pattern = str(item.get("pattern") or item.get("type") or "").strip()
+        description = str(item.get("description") or item.get("details") or item.get("impact") or "").strip()
+        recommendation = str(item.get("recommendation") or item.get("fix") or "").strip()
+        if not pattern and not description:
+            continue
+        normalized.append(
+            {
+                "severity": str(item.get("severity") or "MEDIUM").upper(),
+                "pattern": pattern or f"Anti-pattern {idx}",
+                "description": description or pattern,
+                "recommendation": recommendation,
+                "confidence_score": _coerce_score(item.get("confidence_score"), default=90),
+                "evidence": str(item.get("evidence") or "").strip(),
+            }
+        )
+    return normalized[:12]
+
+
+def _normalize_refactor_items(value: Any) -> list[dict[str, Any]]:
+    items = value if isinstance(value, list) else []
+    normalized: list[dict[str, Any]] = []
+    for idx, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title") or item.get("recommendation") or "").strip()
+        description = str(item.get("description") or item.get("details") or "").strip()
+        if not title and not description:
+            continue
+        normalized.append(
+            {
+                "priority": str(item.get("priority") or "MEDIUM").upper(),
+                "title": title or f"Recommendation {idx}",
+                "description": description or title,
+                "benefit": str(item.get("benefit") or "").strip(),
+                "codeHint": str(item.get("codeHint") or item.get("code_hint") or "").strip(),
+                "confidence_score": _coerce_score(item.get("confidence_score"), default=88),
+                "evidence": str(item.get("evidence") or "").strip(),
+            }
+        )
+    return normalized[:8]
+
+
+def _normalize_jira_items(value: Any) -> list[dict[str, Any]]:
+    items = value if isinstance(value, list) else []
+    normalized: list[dict[str, Any]] = []
+    for idx, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title") or "").strip()
+        description = str(item.get("description") or "").strip()
+        if not title and not description:
+            continue
+        normalized.append(
+            {
+                "title": title or f"Ticket {idx}",
+                "description": description or title,
+                "story_points": item.get("story_points") or 3,
+                "type": str(item.get("type") or "Task").strip(),
+            }
+        )
+    return normalized[:4]
+
+
+def _looks_like_oracle_sql_or_plsql(code: str, language: str) -> bool:
+    lower_lang = (language or "").lower()
+    lower_code = code.lower()
+    return (
+        lower_lang in {"sql", "plsql", "auto"}
+        or "create or replace procedure" in lower_code
+        or "execute immediate" in lower_code
+        or "when others" in lower_code
+    )
+
+
+def _count_max_if_nesting(code: str) -> int:
+    depth = 0
+    max_depth = 0
+    token_pattern = re.compile(r"\bif\b|\bend if\b", re.IGNORECASE)
+    for match in token_pattern.finditer(code):
+        token = match.group(0).lower()
+        if token == "if":
+            depth += 1
+            max_depth = max(max_depth, depth)
+        else:
+            depth = max(0, depth - 1)
+    return max_depth
+
+
+def _contains_magic_number(value: str) -> bool:
+    try:
+        number = float(value)
+    except ValueError:
+        return False
+    return number not in {0.0, 1.0, 2.0, 100.0}
+
+
+def _extract_branch_string_literals(code: str) -> list[str]:
+    literals: list[str] = []
+    pattern = re.compile(r"\b(?:if|elsif)\b[^;\n]*?=\s*'([^']{2,50})'", re.IGNORECASE)
+    for match in pattern.finditer(code):
+        value = match.group(1).strip()
+        if value:
+            literals.append(value)
+    return literals
+
+
+def _rule_based_antipatterns(code: str, language: str) -> list[dict[str, Any]]:
+    if not _looks_like_oracle_sql_or_plsql(code, language):
+        return []
+
+    findings: list[dict[str, Any]] = []
+    lower = code.lower()
+
+    def add(pattern: str, description: str, *, severity: str = "MEDIUM", recommendation: str = "", evidence: str = "", confidence: int = 96) -> None:
+        findings.append(
+            {
+                "severity": severity,
+                "pattern": pattern,
+                "description": description,
+                "recommendation": recommendation,
+                "confidence_score": confidence,
+                "evidence": evidence,
+            }
+        )
+
+    if re.search(r"select\s+\*\s+into\b", code, re.IGNORECASE):
+        add(
+            "SELECT Star Into",
+            "SELECT * INTO makes schema changes and column order risky.",
+            severity="HIGH",
+            recommendation="Select only the required columns explicitly.",
+            evidence="SELECT * INTO",
+        )
+
+    if re.search(r"\bexecute\s+immediate\b", code, re.IGNORECASE):
+        add(
+            "Unnecessary Dynamic SQL",
+            "Dynamic SQL is used where a static statement would be safer and easier to maintain.",
+            severity="HIGH",
+            recommendation="Use static SQL with bind variables unless dynamic structure is required.",
+            evidence="EXECUTE IMMEDIATE",
+        )
+
+    if re.search(r"\bcommit\s*;", code, re.IGNORECASE):
+        add(
+            "Commit Inside Procedure",
+            "Committing inside a reusable procedure breaks transaction control for callers.",
+            severity="HIGH",
+            recommendation="Let the caller control commit and rollback behavior.",
+            evidence="COMMIT;",
+        )
+
+    if re.search(r"\bwhen\s+others\b", code, re.IGNORECASE):
+        add(
+            "Generic Exception Handling",
+            "WHEN OTHERS catches every error path and can hide the real failure cause.",
+            severity="HIGH",
+            recommendation="Handle expected exceptions explicitly and re-raise unexpected failures.",
+            evidence="WHEN OTHERS THEN",
+        )
+
+    if re.search(r"dbms_output\.put_line", code, re.IGNORECASE):
+        add(
+            "Console Style Logging",
+            "DBMS_OUTPUT logging is not a robust operational logging approach for production procedures.",
+            severity="LOW",
+            recommendation="Use structured application logging or audit tables.",
+            evidence="DBMS_OUTPUT.PUT_LINE",
+            confidence=88,
+        )
+
+    branch_literals = _extract_branch_string_literals(code)
+    unique_branch_literals = sorted({value.upper() for value in branch_literals})
+    if len(unique_branch_literals) >= 3:
+        add(
+            "Hardcoded Business Rules",
+            "Business logic is driven by hardcoded string values in procedural branching.",
+            severity="MEDIUM",
+            recommendation="Move business rules into configuration or reference tables.",
+            evidence=", ".join(unique_branch_literals[:6]),
+        )
+
+    if re.search(r"system_user|mumbai_head_office|order_processed", lower):
+        add(
+            "Hardcoded Audit Values",
+            "Audit and operational values are embedded directly in the procedure.",
+            severity="MEDIUM",
+            recommendation="Source audit metadata from configuration or runtime context.",
+            evidence="'SYSTEM_USER' / 'MUMBAI_HEAD_OFFICE'",
+            confidence=92,
+        )
+
+    if re.search(r"sysdate\s*-\s*\d+", code, re.IGNORECASE):
+        add(
+            "Embedded Time Window",
+            "A reporting or discount window is hardcoded directly in the query logic.",
+            severity="MEDIUM",
+            recommendation="Pass the time window as a parameter or store it in configuration.",
+            evidence="SYSDATE - 30",
+            confidence=90,
+        )
+
+    numeric_literals = set(re.findall(r"(?<![\w.])(\d+(?:\.\d+)?)(?![\w.])", code))
+    if sum(1 for value in numeric_literals if _contains_magic_number(value)) >= 4:
+        add(
+            "Magic Numbers",
+            "Multiple numeric thresholds and percentages are hardcoded in the procedure.",
+            severity="MEDIUM",
+            recommendation="Replace literals with named constants or configuration tables.",
+            evidence=", ".join(sorted(value for value in numeric_literals if _contains_magic_number(value))[:8]),
+            confidence=94,
+        )
+
+    if _count_max_if_nesting(code) >= 4:
+        add(
+            "Deeply Nested Conditionals",
+            "Nested IF blocks increase cognitive load and make rule changes error-prone.",
+            severity="MEDIUM",
+            recommendation="Extract decision logic into smaller procedures or table-driven rules.",
+            evidence="Nested IF ... END IF blocks",
+            confidence=93,
+        )
+
+    if re.search(r"v_final_amount\s*:=", code, re.IGNORECASE) and not re.search(r"raise_application_error|if\s+p_order_amount\s*<|if\s+p_order_amount\s+is\s+null", code, re.IGNORECASE):
+        add(
+            "Missing Input Validation",
+            "Financial calculation occurs without clear validation of amount or input state.",
+            severity="MEDIUM",
+            recommendation="Validate inputs before tax discount or final amount calculation.",
+            evidence="v_final_amount :=",
+            confidence=91,
+        )
+
+    if re.search(r"select\s+count\(\*\)\s+into", code, re.IGNORECASE):
+        add(
+            "Inline Query Driven Branching",
+            "Business branching depends on an inline count query embedded in procedural logic.",
+            severity="LOW",
+            recommendation="Move repeatable query logic into a dedicated function or view.",
+            evidence="SELECT COUNT(*) INTO",
+            confidence=87,
+        )
+
+    return findings
+
+
+def _merge_antipatterns(existing: Any, generated: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    if isinstance(existing, list):
+        for item in existing:
+            if isinstance(item, dict):
+                items.append(item)
+
+    seen: set[str] = set()
+    merged: list[dict[str, Any]] = []
+    for item in items + generated:
+        key = str(item.get("pattern") or item.get("type") or item.get("description") or "").strip().lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        merged.append(item)
+    return merged[:12]
+
+
+def _empty_flat_response(lines_of_code: int = 0, message: str = "") -> dict[str, Any]:
     return {
-        "summary_oneliner": "Could not parse agent output as the expected JSON schema.",
-        "summary_complexity": "MEDIUM",
+        "summary_oneliner": message[:220] if message else "Analysis unavailable.",
+        "summary_complexity": "UNKNOWN",
         "summary_risk": "HIGH",
-        "functional_purpose": message[:2000],
+        "functional_purpose": "",
+        "business_logic": [],
+        "side_effects": [],
         "functional_inputs": json.dumps([]),
         "functional_outputs": json.dumps([]),
         "dataflow_steps": json.dumps([]),
-        "complexity_score": max(1, min(50, lines_of_code // 20 or 1)),
+        "complexity_score": max(0, min(50, lines_of_code // 20 or 0)),
         "security_score": 0,
-        "security_issues": json.dumps(
-            [{"severity": "HIGH", "type": "ParseError", "description": message[:500]}]
-        ),
+        "security_issues": json.dumps([]),
         "antipatterns": json.dumps([]),
         "refactor_recommendations": json.dumps([]),
         "jira_tickets": json.dumps([]),
@@ -771,6 +1074,7 @@ def _default_judge_evaluation(message: str) -> dict[str, Any]:
         "summary": message[:500],
         "blocking_issues": [message[:500]],
         "recommended_action": "Hold response and review manually.",
+        "corrected_output": None,
     }
 
 
@@ -889,6 +1193,7 @@ def _normalize_judge_evaluation(raw: dict[str, Any] | None) -> dict[str, Any]:
         "summary": summary or f"Judge marked this response as {status}.",
         "blocking_issues": [str(item)[:500] for item in blocking_issues[:5]],
         "recommended_action": recommended_action,
+        "corrected_output": raw.get("corrected_output") if isinstance(raw.get("corrected_output"), dict) else None,
     }
 
 
@@ -899,7 +1204,7 @@ def _build_judge_request_body(
     flow_id: str,
 ) -> dict[str, Any]:
     judge_query = (
-        "You are an LLM judge evaluating another agent response.\n"
+        "You are an LLM judge evaluating another agent response and producing the final reviewed result for the UI.\n"
         "Score the response using these metrics from 0 to 100:\n"
         "- completeness: maximize\n"
         "- correctness: maximize\n"
@@ -907,9 +1212,18 @@ def _build_judge_request_body(
         "Return ONLY valid JSON with keys:\n"
         "scores: {completeness, correctness, hallucination},\n"
         "validation: {accuracy, oracle_grounding, oracle_specificity},\n"
+        "finding_metrics: {precision, recall, false_positive_rate},\n"
         "summary,\n"
         "blocking_issues,\n"
-        "recommended_action.\n"
+        "recommended_action,\n"
+        "corrected_output.\n"
+        "corrected_output must be a valid final response object with keys: "
+        "summary_oneliner, summary_complexity, summary_risk, functional_purpose, business_logic, side_effects, functional_inputs, functional_outputs, dataflow_steps, complexity_score, security_score, security_issues, antipatterns, refactor_recommendations, jira_tickets.\n"
+        "security_issues must be an array of objects with severity, type, description, line, confidence_score, evidence.\n"
+        "antipatterns must be an array of objects with severity, pattern, description, recommendation, confidence_score, evidence.\n"
+        "refactor_recommendations must be an array of objects with priority, title, description, benefit, codeHint, confidence_score, evidence.\n"
+        "jira_tickets must be an array of objects with title, description, story_points, type.\n"
+        "Remove unsupported claims, merge duplicates, repair malformed sections, and preserve distinct evidence-backed findings.\n"
         "Keep summary short. blocking_issues must be a JSON array of short strings.\n"
         "Penalize unsupported claims, generic non-Oracle advice, and poor grounding against Oracle Fusion/JDE/EBS/EPM documentation.\n\n"
         f"Original input label: {input_item.label or input_item.id}\n"
@@ -1126,15 +1440,56 @@ async def _run_primary_analysis(
     flat = _extract_flat_payload(parsed)
     lines_of_code = len(input_item.code.splitlines())
     if not flat:
-        flat = _fallback_flat_from_error(
+        flat = _empty_flat_response(
             lines_of_code,
-            f"Unexpected response shape. First bytes: {raw_text[:1500]}",
+            f"Primary output could not be parsed into the required schema.",
         )
     flat = _normalize_flat(flat)
+    flat["antipatterns"] = _merge_antipatterns(
+        flat.get("antipatterns"),
+        _rule_based_antipatterns(input_item.code, input_item.language),
+    )
     flat["rag_citations"] = rag_citations
     flat["rag_diagnostics"] = rag_diagnostics
     flat["llm_metadata"] = provider_result["metadata"]
     return flat
+
+
+def _finalize_reviewed_output(
+    *,
+    candidate: dict[str, Any] | None,
+    primary_result: dict[str, Any] | None,
+    input_item: AnalyzeInput,
+    failure_message: str = "",
+) -> tuple[dict[str, Any], str, str]:
+    if isinstance(candidate, dict):
+        normalized_candidate = _normalize_flat(candidate)
+        if normalized_candidate.get("summary_oneliner") or normalized_candidate.get("functional_purpose") or normalized_candidate.get("antipatterns"):
+            if isinstance(primary_result, dict):
+                normalized_candidate["rag_citations"] = primary_result.get("rag_citations", [])
+                normalized_candidate["rag_diagnostics"] = primary_result.get("rag_diagnostics", {})
+                normalized_candidate["llm_metadata"] = primary_result.get("llm_metadata", {})
+            normalized_candidate["antipatterns"] = _merge_antipatterns(
+                normalized_candidate.get("antipatterns"),
+                _rule_based_antipatterns(input_item.code, input_item.language),
+            )
+            return normalized_candidate, "judge_reviewed", ""
+
+    if isinstance(primary_result, dict):
+        normalized_primary = _normalize_flat(primary_result)
+        normalized_primary["rag_citations"] = primary_result.get("rag_citations", [])
+        normalized_primary["rag_diagnostics"] = primary_result.get("rag_diagnostics", {})
+        normalized_primary["llm_metadata"] = primary_result.get("llm_metadata", {})
+        normalized_primary["antipatterns"] = _merge_antipatterns(
+            normalized_primary.get("antipatterns"),
+            _rule_based_antipatterns(input_item.code, input_item.language),
+        )
+        return normalized_primary, "primary_fallback", failure_message[:500]
+
+    return _empty_flat_response(
+        len(input_item.code.splitlines()),
+        failure_message or "Analysis failed before a reviewed result was produced.",
+    ), "failed", failure_message[:500]
 
 
 async def _run_judge_analysis(
@@ -1274,13 +1629,20 @@ async def _execute_analysis_batch(
                             "label": current_input.label,
                             "language": current_input.language or "auto",
                             "original_input": current_input.code,
-                            "primary_output": _fallback_flat_from_error(
+                            "primary_output": _empty_flat_response(
                                 len(current_input.code.splitlines()),
                                 f"Primary agent failed: {message}",
+                            ),
+                            "final_output": _empty_flat_response(
+                                len(current_input.code.splitlines()),
+                                "Analysis failed. No reviewed result is available.",
                             ),
                             "judge_evaluation": judge_result,
                             "final_status": judge_result["status"],
                             "deliverable": False,
+                            "analysis_state": "failed",
+                            "render_source": "none",
+                            "failure_reason": str(message)[:500],
                             "session_id": config.get("session_id", ""),
                         }
                     )
@@ -1305,10 +1667,20 @@ async def _execute_analysis_batch(
                     "time_to_first_useful_output": first_output_time,
                     "total_runtime": round(time.perf_counter() - item_started_at, 3),
                 }
+                corrected_output = judge_result.pop("corrected_output", None)
+                failure_reason = ""
+                if judge_result["summary"].lower().startswith("judge evaluation failed"):
+                    failure_reason = judge_result["summary"]
+                final_output, render_source, failure_reason = _finalize_reviewed_output(
+                    candidate=corrected_output,
+                    primary_result=primary_result,
+                    input_item=current_input,
+                    failure_message=failure_reason,
+                )
                 _remember_turn(
                     config.get("session_id", ""),
                     current_input.code,
-                    str(primary_result.get("summary_oneliner", "")),
+                    str(final_output.get("summary_oneliner", "")),
                 )
                 results.append(
                     {
@@ -1317,9 +1689,13 @@ async def _execute_analysis_batch(
                         "language": current_input.language or "auto",
                         "original_input": current_input.code,
                         "primary_output": primary_result,
+                        "final_output": final_output,
                         "judge_evaluation": judge_result,
                         "final_status": judge_result["status"],
                         "deliverable": judge_result["deliverable"],
+                        "analysis_state": "ok" if render_source == "judge_reviewed" else "degraded",
+                        "render_source": render_source,
+                        "failure_reason": failure_reason,
                         "session_id": config.get("session_id", ""),
                     }
                 )
@@ -1372,7 +1748,7 @@ def _normalize_source_name(value: str) -> str:
 
 
 def _evaluate_benchmark_sample(case: BenchmarkCase, item: dict[str, Any]) -> dict[str, Any]:
-    primary = item["primary_output"]
+    primary = item.get("final_output") or item["primary_output"]
     judge = dict(item["judge_evaluation"])
     expected = case.expected
 

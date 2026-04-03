@@ -1,7 +1,0 @@
-case_id,label,artifact_type,oracle_product,final_status,completeness,correctness,hallucination,accuracy,oracle_grounding,oracle_specificity,precision,recall,false_positive_rate,review_time_reduction_percent
-bench-sql-fusion,Fusion SQL Payables Extract,sql,fusion,rejected,48,60,40,47,50,100,40,40,40,94.39
-bench-plsql-ebs,EBS Concurrent Program PL/SQL,plsql,ebs,rejected,0,33,100,11,0,100,0,0,100,95.98
-bench-groovy-jde,JDE Groovy Orchestration Rule,groovy,jde,rejected,44,58,50,44,0,100,33,40,50,93.9
-bench-bip-fusion,Fusion BI Publisher Config,bip,fusion,rejected,59,50,25,33,0,100,25,25,25,94.12
-bench-oic-epm,EPM OIC Flow Extract,oic,epm,rejected,30,46,83,28,100,100,17,20,83,95.09
-bench-shell-ebs,EBS Shell Deployment Script,script,ebs,rejected,56,55,17,40,0,100,33,33,17,93.72

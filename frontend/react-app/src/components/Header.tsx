@@ -1,13 +1,13 @@
-import { PersonaSelector } from './PersonaSelector';
 import { PersonaBadge } from './PersonaBadge';
+import { PersonaSelector } from './PersonaSelector';
 
 export function Header() {
   return (
     <header>
       <div className="logo">
-        <div className="logo-icon">🔬</div>
+        <div className="logo-icon">🔎</div>
         <div className="logo-text">
-          LTM<span>Universe</span>
+          Code<span>Lens</span>
         </div>
       </div>
       <div className="header-right">

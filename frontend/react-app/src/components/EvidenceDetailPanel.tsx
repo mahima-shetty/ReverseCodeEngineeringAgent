@@ -16,23 +16,31 @@ export function EvidenceDetailPanel({ sample }: Props) {
         </div>
       </div>
       <div style={{ padding: 24 }}>
+        <div className="section-card benchmark-hero-card">
+          <div className="benchmark-hero-topline">Selected Benchmark Case</div>
+          <h3>{sample.analysisItem.label}</h3>
+          <p>
+            This view explains what the system saw, what it got right, what it missed, and how well the result stayed grounded
+            in Oracle specific evidence.
+          </p>
+        </div>
         <div className="evaluation-grid">
           <div className="section-card">
             <h3>Original Input</h3>
             <div className="code-block">{sample.analysisItem.originalInput}</div>
           </div>
           <div className="section-card">
-            <h3>Judge Validation</h3>
+            <h3>Plain English Scorecard</h3>
             <ul>
-              <li>Accuracy: {sample.judgeEvaluation.validation.accuracy}</li>
-              <li>Oracle grounding: {sample.judgeEvaluation.validation.oracle_grounding}</li>
-              <li>Oracle specificity: {sample.judgeEvaluation.validation.oracle_specificity}</li>
-              <li>Precision: {sample.judgeEvaluation.finding_metrics?.precision ?? 0}</li>
-              <li>Recall: {sample.judgeEvaluation.finding_metrics?.recall ?? 0}</li>
-              <li>False positive rate: {sample.judgeEvaluation.finding_metrics?.false_positive_rate ?? 0}</li>
-              <li>Time to first useful output: {sample.judgeEvaluation.latency_metrics?.time_to_first_useful_output ?? 0}s</li>
+              <li>How accurate the result was: {sample.judgeEvaluation.validation.accuracy}</li>
+              <li>How well it stayed Oracle specific: {sample.judgeEvaluation.validation.oracle_grounding}</li>
+              <li>How specific the answer was to the product area: {sample.judgeEvaluation.validation.oracle_specificity}</li>
+              <li>How many valid findings it kept: {sample.judgeEvaluation.finding_metrics?.precision ?? 0}</li>
+              <li>How many important issues it caught: {sample.judgeEvaluation.finding_metrics?.recall ?? 0}</li>
+              <li>How many unsupported claims it made: {sample.judgeEvaluation.finding_metrics?.false_positive_rate ?? 0}</li>
+              <li>Time to first useful answer: {sample.judgeEvaluation.latency_metrics?.time_to_first_useful_output ?? 0}s</li>
               <li>Total runtime: {sample.judgeEvaluation.latency_metrics?.total_runtime ?? 0}s</li>
-              <li>Review time reduction: {sample.reviewTimeReductionPercent}%</li>
+              <li>Manual review time saved: {sample.reviewTimeReductionPercent}%</li>
             </ul>
           </div>
           <div className="section-card">

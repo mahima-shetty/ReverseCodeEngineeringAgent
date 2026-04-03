@@ -4,17 +4,29 @@ import type { AnalysisInput, Lang } from '../types';
 const LANG_OPTIONS: { id: Lang; label: string }[] = [
   { id: 'sql', label: 'SQL / PL/SQL' },
   { id: 'groovy', label: 'Groovy' },
-  { id: 'oic', label: 'OIC / BI Flow' },
+  { id: 'bip', label: 'BI Publisher' },
+  { id: 'oic', label: 'OIC / Integration Flow' },
   { id: 'shell', label: 'Shell Script' },
   { id: 'auto', label: 'Auto-detect' },
 ];
 
 const EXT_MAP: Record<string, Lang> = {
   sql: 'sql',
+  pls: 'sql',
+  pks: 'sql',
+  pkb: 'sql',
+  fnc: 'sql',
+  prc: 'sql',
   groovy: 'groovy',
+  bip: 'bip',
+  xdo: 'bip',
+  xdm: 'bip',
+  rtf: 'bip',
   xml: 'oic',
   json: 'oic',
   sh: 'shell',
+  bash: 'shell',
+  ksh: 'shell',
 };
 
 type Props = {
@@ -121,7 +133,7 @@ export function CodeInputPanel({
           ref={fileRef}
           type="file"
           multiple
-          accept=".sql,.groovy,.xml,.json,.sh,.txt"
+          accept=".sql,.pls,.pks,.pkb,.fnc,.prc,.groovy,.bip,.xdo,.xdm,.rtf,.xml,.json,.sh,.bash,.ksh,.txt"
           onChange={onFileChange}
         />
         <p>

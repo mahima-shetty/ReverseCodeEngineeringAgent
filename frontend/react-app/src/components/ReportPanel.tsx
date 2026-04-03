@@ -13,15 +13,15 @@ import { TestScenariosTab } from './tabs/TestScenariosTab';
 import { ImpactSummaryTab } from './tabs/ImpactSummaryTab';
 
 const TAB_META: Record<TabId, { icon: string; label: string }> = {
-  intent: { icon: 'ðŸ“‹', label: 'Functional Intent' },
-  dataflow: { icon: 'ðŸ”„', label: 'Data Flow' },
-  complexity: { icon: 'ðŸ“Š', label: 'Complexity' },
-  security: { icon: 'ðŸ”’', label: 'Security' },
-  antipatterns: { icon: 'âš ï¸', label: 'Anti-patterns' },
-  refactor: { icon: 'ðŸ› ', label: 'Refactor' },
-  jira: { icon: 'ðŸŽ«', label: 'Jira Tasks' },
-  testscenarios: { icon: 'ðŸ§ª', label: 'Test Scenarios' },
-  impact: { icon: 'ðŸ“ˆ', label: 'Impact Summary' },
+  intent: { icon: '📋', label: 'Functional Intent' },
+  dataflow: { icon: '🔄', label: 'Data Flow' },
+  complexity: { icon: '📊', label: 'Complexity' },
+  security: { icon: '🔒', label: 'Security' },
+  antipatterns: { icon: '⚠️', label: 'Anti-patterns' },
+  refactor: { icon: '🛠', label: 'Refactor' },
+  jira: { icon: '🎫', label: 'Jira Tasks' },
+  testscenarios: { icon: '🧪', label: 'Test Scenarios' },
+  impact: { icon: '📈', label: 'Impact Summary' },
 };
 
 type Props = {
@@ -54,6 +54,16 @@ export function ReportPanel({ result, item }: Props) {
     <div className="panel output-panel visible" id="outputPanel" ref={panelRef}>
       {item ? (
         <div className="judge-overview">
+          {item.analysisState !== 'ok' ? (
+            <div className="judge-pane degraded-banner" style={{ marginBottom: 16 }}>
+              <div className="summary-kicker">Analysis State</div>
+              <div className="judge-pane-text">
+                {item.analysisState === 'failed'
+                  ? `Analysis failed. ${item.failureReason || 'No reviewed result is available.'}`
+                  : `Showing validated fallback output from ${item.renderSource}. ${item.failureReason || 'Judge-corrected output was unavailable.'}`}
+              </div>
+            </div>
+          ) : null}
           <div className="judge-overview-grid">
             <div className="judge-pane">
               <div className="summary-kicker">Original Input</div>
@@ -89,6 +99,7 @@ export function ReportPanel({ result, item }: Props) {
                 <span>Primary provider: {item.primaryRaw.llm_metadata?.provider ?? 'blueverse'}</span>
                 <span>Primary tokens: {item.primaryRaw.llm_metadata?.usage?.total_tokens ?? 'n/a'}</span>
                 <span>Primary cost: ${item.primaryRaw.llm_metadata?.cost_usd ?? 0}</span>
+                <span>Rendered from: {item.renderSource}</span>
               </div>
             </div>
             <div className="judge-pane">

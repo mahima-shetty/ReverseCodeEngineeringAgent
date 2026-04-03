@@ -7,9 +7,10 @@ type Props = {
 };
 
 function findingBucket(item: BatchAnalysisItem): 'high' | 'medium' | 'low' {
-  const security = item.primaryResult.security.issues.length;
-  const antiPatterns = item.primaryResult.antiPatterns.length;
-  const risk = item.primaryResult.summary.overallRisk;
+  if (item.analysisState === 'failed') return 'high';
+  const security = item.finalResult.security.issues.length;
+  const antiPatterns = item.finalResult.antiPatterns.length;
+  const risk = item.finalResult.summary.overallRisk;
   if (security >= 2 || antiPatterns >= 2 || risk === 'HIGH') return 'high';
   if (security >= 1 || antiPatterns >= 1 || risk === 'MEDIUM') return 'medium';
   return 'low';
@@ -55,11 +56,11 @@ export function BatchResultsPanel({ items, selectedId, onSelect }: Props) {
                   >
                     <div className="batch-result-card-header">
                       <strong>{item.label}</strong>
-                      <span className={`status-pill ${meta.className}`}>{item.primaryResult.summary.overallRisk}</span>
+                      <span className={`status-pill ${meta.className}`}>{item.finalResult.summary.overallRisk}</span>
                     </div>
                     <div className="batch-result-meta">
                       <span>{String(item.language).toUpperCase()}</span>
-                      <span>{item.primaryResult.summary.complexity} complexity</span>
+                      <span>{item.finalResult.summary.complexity} complexity</span>
                     </div>
                     <div className="batch-result-section">
                       <div className="summary-kicker">Original Input</div>
@@ -67,12 +68,12 @@ export function BatchResultsPanel({ items, selectedId, onSelect }: Props) {
                     </div>
                     <div className="batch-result-section">
                       <div className="summary-kicker">Findings Summary</div>
-                      <p>{item.primaryResult.summary.oneliner}</p>
+                      <p>{item.analysisState === 'failed' ? (item.failureReason || 'Analysis failed') : item.finalResult.summary.oneliner}</p>
                     </div>
                     <div className="score-row">
-                      <span>Security {item.primaryResult.security.issues.length}</span>
-                      <span>Anti-patterns {item.primaryResult.antiPatterns.length}</span>
-                      <span>Refactors {item.primaryResult.refactorRecommendations.length}</span>
+                      <span>Security {item.finalResult.security.issues.length}</span>
+                      <span>Anti-patterns {item.finalResult.antiPatterns.length}</span>
+                      <span>Refactors {item.finalResult.refactorRecommendations.length}</span>
                       <span>RAG {item.judgeEvaluation.validation.oracle_grounding}</span>
                     </div>
                   </button>

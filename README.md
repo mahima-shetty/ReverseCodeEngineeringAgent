@@ -1,4 +1,4 @@
-# Reverse Code Engineering Agent (CodeLens)
+# CodeLens
 
 CodeLens provides an intelligent Code Review and Reverse Engineering layer on top of **LTM Blueverse Foundry models**. It supports multi-language review (SQL, Groovy, OIC, Shell Scripts) with feature-rich analysis including interactive diff viewing, actionable Jira tickets, micro-tracked architecture metrics, and coding standard evaluations powered by a local FAISS RAG index.
 

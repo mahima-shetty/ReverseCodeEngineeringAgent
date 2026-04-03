@@ -17,7 +17,7 @@ export function QuickSummary({ summary, selectedItem }: Props) {
         </div>
         <div style={{ padding: 24 }}>
           <div className="empty-state">
-            <div className="icon">Review</div>
+            <div className="icon">📋</div>
             <p>
               Run analysis to see
               <br />
@@ -48,11 +48,11 @@ export function QuickSummary({ summary, selectedItem }: Props) {
             <div className="label">Security Focus</div>
           </div>
           <div className="metric-chip orange">
-            <div className="value">{selectedItem?.primaryResult.antiPatterns.length ?? '—'}</div>
+            <div className="value">{selectedItem?.finalResult.antiPatterns.length ?? '—'}</div>
             <div className="label">Anti-patterns</div>
           </div>
           <div className="metric-chip red">
-            <div className="value">{selectedItem?.primaryResult.refactorRecommendations.length ?? '—'}</div>
+            <div className="value">{selectedItem?.finalResult.refactorRecommendations.length ?? '—'}</div>
             <div className="label">Refactors</div>
           </div>
         </div>
@@ -60,7 +60,7 @@ export function QuickSummary({ summary, selectedItem }: Props) {
           <h3>Selected Review</h3>
           <p style={{ marginBottom: 12 }}>
             {selectedItem
-              ? `${selectedItem.label}: ${selectedItem.primaryResult.summary.oneliner}`
+              ? `${selectedItem.label}: ${selectedItem.analysisState === 'failed' ? (selectedItem.failureReason || 'Analysis failed.') : selectedItem.finalResult.summary.oneliner}`
               : 'Select an item below to inspect the original input, findings, and evidence.'}
           </p>
           {selectedItem ? (
@@ -68,31 +68,31 @@ export function QuickSummary({ summary, selectedItem }: Props) {
               <div>
                 <div className="summary-kicker">SECURITY ISSUES</div>
                 <div style={{ fontWeight: 800, color: 'var(--danger)' }}>
-                  {selectedItem.primaryResult.security.issues.length}
+                  {selectedItem.finalResult.security.issues.length}
                 </div>
               </div>
               <div>
                 <div className="summary-kicker">ANTI-PATTERNS</div>
                 <div style={{ fontWeight: 800, color: 'var(--warn)' }}>
-                  {selectedItem.primaryResult.antiPatterns.length}
+                  {selectedItem.finalResult.antiPatterns.length}
                 </div>
               </div>
               <div>
                 <div className="summary-kicker">REFACTOR ITEMS</div>
                 <div style={{ fontWeight: 800, color: 'var(--accent3)' }}>
-                  {selectedItem.primaryResult.refactorRecommendations.length}
+                  {selectedItem.finalResult.refactorRecommendations.length}
                 </div>
               </div>
               <div>
                 <div className="summary-kicker">COMPLEXITY</div>
                 <div style={{ fontWeight: 800, color: 'var(--accent)' }}>
-                  {selectedItem.primaryResult.summary.complexity}
+                  {selectedItem.finalResult.summary.complexity}
                 </div>
               </div>
               <div>
                 <div className="summary-kicker">RISK</div>
                 <div style={{ fontWeight: 800, color: 'var(--accent2)' }}>
-                  {selectedItem.primaryResult.summary.overallRisk}
+                  {selectedItem.finalResult.summary.overallRisk}
                 </div>
               </div>
             </div>
@@ -109,6 +109,6 @@ function itemsWithFindings(
   type: 'security'
 ): number | string {
   if (!selectedItem) return summary.total;
-  if (type === 'security') return selectedItem.primaryResult.security.issues.length;
+  if (type === 'security') return selectedItem.finalResult.security.issues.length;
   return summary.total;
 }

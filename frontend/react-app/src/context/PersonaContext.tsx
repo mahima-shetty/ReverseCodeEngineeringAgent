@@ -38,7 +38,6 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const setPersona = (p: Persona) => {
     setPersonaState(p);
     localStorage.setItem(STORAGE_PERSONA, p);
-    // Reset mode to the default for new persona
     const defaultMode = DEFAULT_MODES[p];
     setModeState(defaultMode);
     localStorage.setItem(STORAGE_MODE, defaultMode);
@@ -49,7 +48,6 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_MODE, m);
   };
 
-  // Sync body data attribute for CSS theme switching
   useEffect(() => {
     document.body.setAttribute('data-persona', persona);
   }, [persona]);
@@ -69,8 +67,8 @@ export function useTheme(): { accentColor: string; personaLabel: string; persona
   const { persona } = useContext(PersonaContext);
   const themes: Record<Persona, { accentColor: string; personaLabel: string; personaIcon: string }> = {
     developer: { accentColor: '#7b61ff', personaLabel: 'Developer', personaIcon: '💻' },
-    qa: { accentColor: '#00d4ff', personaLabel: 'QA Engineer', personaIcon: '🐛' },
-    pm: { accentColor: '#ff61dc', personaLabel: 'Project Manager', personaIcon: '📊' },
+    qa: { accentColor: '#00d4ff', personaLabel: 'QA Engineer', personaIcon: '🧪' },
+    pm: { accentColor: '#ff61dc', personaLabel: 'Project Manager', personaIcon: '📈' },
   };
   return themes[persona];
 }

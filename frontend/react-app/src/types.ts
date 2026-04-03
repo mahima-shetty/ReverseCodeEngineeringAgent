@@ -1,4 +1,4 @@
-export type Lang = 'sql' | 'groovy' | 'oic' | 'shell' | 'auto';
+export type Lang = 'sql' | 'groovy' | 'bip' | 'oic' | 'shell' | 'auto';
 export type { Persona, ExplainMode } from './context/PersonaContext';
 
 export interface AnalysisInput {
@@ -169,9 +169,13 @@ export interface AnalyzeBatchItemRaw {
   language: string;
   original_input: string;
   primary_output: FlatBlueverseRaw;
+  final_output?: FlatBlueverseRaw;
   judge_evaluation: JudgeEvaluation;
   final_status: 'approved' | 'flagged' | 'rejected';
   deliverable: boolean;
+  analysis_state?: 'ok' | 'degraded' | 'failed';
+  render_source?: 'judge_reviewed' | 'primary_fallback' | 'failed' | 'none';
+  failure_reason?: string;
   session_id?: string;
 }
 
@@ -191,10 +195,14 @@ export interface BatchAnalysisItem {
   language: Lang | string;
   originalInput: string;
   primaryRaw: FlatBlueverseRaw;
-  primaryResult: NormalizedResult;
+  finalRaw: FlatBlueverseRaw;
+  finalResult: NormalizedResult;
   judgeEvaluation: JudgeEvaluation;
   finalStatus: 'approved' | 'flagged' | 'rejected';
   deliverable: boolean;
+  analysisState: 'ok' | 'degraded' | 'failed';
+  renderSource: 'judge_reviewed' | 'primary_fallback' | 'failed' | 'none';
+  failureReason: string;
 }
 
 export interface BatchAnalysisSummary {
@@ -255,7 +263,7 @@ export interface BenchmarkEvaluationResponseRaw {
   generated_at: string;
   summary: BenchmarkSummary;
   sample_results: BenchmarkSampleResultRaw[];
-  exports: {
+  exports?: {
     json_report: string;
     csv_report: string;
     manifest: string;

@@ -28,6 +28,7 @@
     --persona-accent: #7b61ff;
     --persona-accent-rgb: 123, 97, 255;
     --persona-glow: rgba(123, 97, 255, 0.25);
+    --persona-surface: rgba(123, 97, 255, 0.08);
   }
 
   /* ── QA theme (Blue/Cyan) ── */
@@ -35,6 +36,7 @@
     --persona-accent: #00d4ff;
     --persona-accent-rgb: 0, 212, 255;
     --persona-glow: rgba(0, 212, 255, 0.25);
+    --persona-surface: rgba(0, 212, 255, 0.08);
   }
 
   /* ── Project Manager theme (Magenta) ── */
@@ -42,6 +44,7 @@
     --persona-accent: #ff61dc;
     --persona-accent-rgb: 255, 97, 220;
     --persona-glow: rgba(255, 97, 220, 0.25);
+    --persona-surface: rgba(255, 97, 220, 0.08);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,6 +81,18 @@
   }
   .glow-orb.one { background: rgba(0,212,255,0.06); top: -200px; right: -100px; }
   .glow-orb.two { background: rgba(123,97,255,0.06); bottom: -200px; left: -100px; }
+  body[data-persona="developer"] .glow-orb.one,
+  body[data-persona="developer"] .glow-orb.two {
+    background: rgba(123, 97, 255, 0.08);
+  }
+  body[data-persona="qa"] .glow-orb.one,
+  body[data-persona="qa"] .glow-orb.two {
+    background: rgba(0, 212, 255, 0.08);
+  }
+  body[data-persona="pm"] .glow-orb.one,
+  body[data-persona="pm"] .glow-orb.two {
+    background: rgba(255, 97, 220, 0.08);
+  }
 
   .container {
     position: relative;
@@ -105,12 +120,14 @@
   .logo-icon {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background: linear-gradient(135deg, var(--persona-accent), var(--accent2));
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #06111c;
     font-size: 18px;
+    box-shadow: 0 0 20px rgba(var(--persona-accent-rgb), 0.28);
   }
 
   .logo-text {
@@ -119,7 +136,7 @@
     letter-spacing: -0.5px;
   }
 
-  .logo-text span { color: var(--accent); }
+  .logo-text span { color: var(--persona-accent); }
 
   .badge {
     font-family: 'JetBrains Mono', monospace;
@@ -208,12 +225,28 @@
     .main { grid-template-columns: 1fr; }
   }
 
+  .benchmark-section {
+    display: grid;
+    gap: 20px;
+    margin-top: 20px;
+    padding-bottom: 40px;
+  }
+
   /* Panel */
   .panel {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(3, 10, 24, 0.22);
+  }
+
+  body[data-persona="developer"] .panel,
+  body[data-persona="qa"] .panel,
+  body[data-persona="pm"] .panel {
+    background:
+      linear-gradient(180deg, rgba(var(--persona-accent-rgb), 0.035), transparent 120px),
+      var(--surface);
   }
 
   .panel-header {
@@ -670,11 +703,35 @@
     text-transform: uppercase;
   }
 
+  .metric-note {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #9ab0cd;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
   .metric-chip.cyan .value { color: var(--accent); }
   .metric-chip.purple .value { color: var(--accent2); }
   .metric-chip.green .value { color: var(--accent3); }
   .metric-chip.red .value { color: var(--danger); }
   .metric-chip.orange .value { color: var(--warn); }
+
+  .benchmark-hero-card {
+    background:
+      radial-gradient(circle at top right, rgba(var(--persona-accent-rgb), 0.18), transparent 38%),
+      linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(123, 97, 255, 0.08)),
+      var(--surface2);
+  }
+
+  .benchmark-hero-topline {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
 
   /* Code block */
   .code-block {
@@ -857,10 +914,11 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(var(--persona-accent-rgb), 0.08), rgba(0, 0, 0, 0)), var(--surface2);
+    border: 1px solid rgba(var(--persona-accent-rgb), 0.3);
     border-radius: 30px;
     padding: 4px 6px;
+    box-shadow: inset 0 0 0 1px rgba(var(--persona-accent-rgb), 0.08);
   }
 
   .persona-selector-btn {
@@ -893,6 +951,7 @@
 
   .persona-selector-icon {
     font-size: 14px;
+    line-height: 1;
   }
 
   /* ── Persona Badge ── */
@@ -905,14 +964,17 @@
     padding: 4px 12px;
     border: 1px solid var(--persona-accent);
     color: var(--persona-accent);
+    background: rgba(var(--persona-accent-rgb), 0.08);
     border-radius: 20px;
     letter-spacing: 1px;
     text-transform: uppercase;
     transition: color 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 0 16px rgba(var(--persona-accent-rgb), 0.12);
   }
 
   .persona-badge-icon {
-    font-size: 13px;
+    font-size: 14px;
+    line-height: 1;
   }
 
   /* ── Mode Toggle ── */

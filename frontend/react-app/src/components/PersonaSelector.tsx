@@ -2,8 +2,8 @@ import { usePersona, type Persona } from '../context/PersonaContext';
 
 const PERSONAS: { id: Persona; icon: string; label: string }[] = [
   { id: 'developer', icon: '💻', label: 'Developer' },
-  { id: 'qa', icon: '🐛', label: 'QA' },
-  { id: 'pm', icon: '📊', label: 'Project Manager' },
+  { id: 'qa', icon: '🧪', label: 'QA Engineer' },
+  { id: 'pm', icon: '📈', label: 'Project Manager' },
 ];
 
 export function PersonaSelector() {
