@@ -79,6 +79,30 @@ def _normalize_list_of_dicts(value: object, *, confidence_key: str = "confidence
     return normalized_items
 
 
+def _trim_text(value: str, limit: int) -> str:
+    text = value.strip()
+    if len(text) <= limit:
+        return text
+    return f"{text[:limit - 3].rstrip()}..."
+
+
+def _prompt_citations(state: ReviewGraphState) -> list[dict[str, object]]:
+    citations: list[dict[str, object]] = []
+    for hit in state.retrieval.reranked_hits[:3]:
+        citations.append(
+            {
+                "chunk_id": hit.chunk_id,
+                "source": hit.source,
+                "title": hit.title,
+                "section_path": hit.section_path,
+                "product": hit.product,
+                "excerpt": _trim_text(hit.excerpt or hit.text, 320),
+                "rerank_score": hit.rerank_score,
+            }
+        )
+    return citations
+
+
 def _coerce_str_list(value: object) -> list[str]:
     if isinstance(value, list):
         return [str(item).strip() for item in value if str(item).strip()]
@@ -323,8 +347,8 @@ def _build_provider_prompt(input_item: AnalyzeInput, state: ReviewGraphState) ->
         "artifact_label": input_item.label or input_item.id,
         "language": input_item.language or "auto",
         "product": state.inferred_product or "",
-        "artifact": input_item.code,
-        "citations": [hit.model_dump() for hit in state.retrieval.reranked_hits],
+        "artifact": _trim_text(input_item.code, 5000),
+        "citations": _prompt_citations(state),
     }
     return json.dumps(instruction, ensure_ascii=False)
 

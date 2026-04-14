@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ast
 import json
+import re
 from typing import Any
 
 import httpx
@@ -8,6 +10,47 @@ import httpx
 from app.config import get_settings
 
 settings = get_settings()
+
+
+def _extract_json_candidate(text: str) -> str:
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        stripped = re.sub(r"^```(?:json)?\s*", "", stripped)
+        stripped = re.sub(r"\s*```$", "", stripped)
+    start = stripped.find("{")
+    end = stripped.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        return stripped[start : end + 1]
+    return stripped
+
+
+def _loads_json_object(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if not isinstance(value, str):
+        raise RuntimeError("Blueverse returned non-object analysis output")
+
+    candidate = _extract_json_candidate(value)
+    attempts = [
+        candidate,
+        re.sub(r",(\s*[}\]])", r"\1", candidate),
+    ]
+    last_error: Exception | None = None
+    for attempt in attempts:
+        try:
+            parsed = json.loads(attempt)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+        try:
+            parsed = ast.literal_eval(attempt)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+    snippet = candidate[:300]
+    raise RuntimeError(f"Blueverse returned malformed JSON payload: {last_error}; snippet={snippet!r}")
 
 
 async def call_blueverse(
@@ -60,10 +103,7 @@ async def call_blueverse(
     raw_text = response.text
     parsed = response.json()
     payload = parsed.get("response", parsed)
-    if isinstance(payload, str):
-        payload = json.loads(payload)
-    if not isinstance(payload, dict):
-        raise RuntimeError("Blueverse returned non-object analysis output")
+    payload = _loads_json_object(payload)
 
     usage = parsed.get("usage") if isinstance(parsed.get("usage"), dict) else {}
     return {
