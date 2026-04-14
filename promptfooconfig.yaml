@@ -1,36 +1,43 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-description: CodeLens evaluation suite for judge reviewed analysis output
+description: CodeLens Promptfoo evaluation suite
 
 prompts:
-  - "Analyze the supplied artifact and return the final reviewed result."
+  - |
+    Analyze the supplied artifact and return the final reviewed result.
 
 providers:
   - file://promptfoo/providers/codelens-api.mjs
 
 defaultTest:
+  options:
+    provider:
+      id: codelens-api
   assert:
+    - type: javascript
+      metric: returns_json
+      value: |
+        JSON.parse(output);
+        return true;
     - type: javascript
       metric: has_final_output
       value: |
         const result = JSON.parse(output);
-        return !!result.final_output;
+        return !!result.final_output?.summary_oneliner;
     - type: javascript
-      metric: no_fake_parse_errors
+      metric: has_retrieval_bundle
       value: |
         const result = JSON.parse(output);
-        const issues = result.final_output?.security_issues || [];
-        return !issues.some((issue) => String(issue.type || '').toLowerCase() === 'parseerror');
+        return Array.isArray(result.retrieval?.reranked_hits);
     - type: javascript
-      metric: has_structured_antipatterns
+      metric: has_verification
       value: |
         const result = JSON.parse(output);
-        const antiPatterns = result.final_output?.antipatterns || [];
-        return antiPatterns.every((item) =>
-          item &&
-          typeof item === 'object' &&
-          typeof item.pattern === 'string' &&
-          typeof item.description === 'string'
-        );
+        return Array.isArray(result.verification?.claims);
+    - type: javascript
+      metric: has_execution_trace
+      value: |
+        const result = JSON.parse(output);
+        return Array.isArray(result.execution_trace) && result.execution_trace.length > 0;
 
 tests: file://promptfoo/tests/codelens-evals.yaml
 

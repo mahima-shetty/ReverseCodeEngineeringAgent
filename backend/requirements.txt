@@ -3,11 +3,12 @@ uvicorn
 httpx
 python-multipart
 python-dotenv
-pydantic
-langchain
-langchain-community
+pydantic>=2.7
+pydantic-settings
 beautifulsoup4
-
-# GCP Vertex AI RAG Engine
-google-cloud-aiplatform[preview]>=1.38.0
-google-auth
+sentence-transformers
+langgraph
+qdrant-client
+fastembed
+structlog
+opentelemetry-api

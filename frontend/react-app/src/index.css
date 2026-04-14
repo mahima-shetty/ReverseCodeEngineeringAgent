@@ -733,6 +733,124 @@
     margin-bottom: 10px;
   }
 
+  .benchmark-workspace-body {
+    padding: 20px;
+  }
+
+  .benchmark-top-kpis .metric-chip,
+  .benchmark-case-kpis .metric-chip {
+    min-width: 150px;
+  }
+
+  .benchmark-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .benchmark-case-selector {
+    margin-top: 2px;
+  }
+
+  .benchmark-case-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .benchmark-case-row {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .benchmark-case-row.active {
+    border-color: var(--persona-accent);
+    box-shadow: 0 0 0 1px rgba(var(--persona-accent-rgb), 0.3);
+    background: rgba(var(--persona-accent-rgb), 0.08);
+  }
+
+  .benchmark-case-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .benchmark-case-main strong {
+    font-size: 14px;
+  }
+
+  .benchmark-case-main span,
+  .benchmark-case-meta span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #9fb3cd;
+  }
+
+  .benchmark-case-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .benchmark-compare-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  .benchmark-compare-column {
+    min-width: 0;
+  }
+
+  .benchmark-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .benchmark-column-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent3);
+  }
+
+  @media (max-width: 1100px) {
+    .benchmark-compare-grid,
+    .benchmark-meta-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .benchmark-case-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .benchmark-case-meta {
+      justify-content: flex-start;
+    }
+  }
+
   /* Code block */
   .code-block {
     background: #060a10;

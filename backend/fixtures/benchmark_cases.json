@@ -1,128 +1,173 @@
 [
   {
-    "id": "bench-sql-fusion",
-    "label": "Fusion SQL Payables Extract",
+    "id": "bench-ebs-sql-ap-invoices",
+    "label": "EBS AP Invoice Extract",
     "language": "sql",
     "artifact_type": "sql",
-    "oracle_product": "fusion",
+    "oracle_product": "ebs",
     "baseline_manual_review_seconds": 480,
-    "code": "SELECT invoice_num, invoice_amount, approval_status FROM ap_invoices_all WHERE payment_status_flag = 'N' AND cancelled_date IS NULL;",
-    "expected": {
-      "functional_intent_keywords": ["payables", "invoice", "unpaid invoices"],
-      "data_flow_keywords": ["select", "ap_invoices_all", "payment status"],
-      "complexity_hotspots": ["filter logic"],
-      "security_findings": ["sensitive financial data"],
-      "performance_findings": ["filter on status"],
-      "anti_patterns": ["hard-coded status"],
-      "hardcoding_gaps": ["payment_status_flag"],
-      "error_handling_gaps": [],
-      "refactor_recommendations": ["parameterize status filter"],
-      "oracle_grounding_sources": ["financials", "fusion"]
-    }
+    "query": "Explain intent, risks, and Oracle-specific grounding for an EBS AP invoice query.",
+    "artifact": "SELECT invoice_num, invoice_amount, approval_status FROM ap_invoices_all WHERE payment_status_flag = 'N' AND cancelled_date IS NULL;",
+    "expected_claims": [
+      "AP invoice extraction",
+      "hardcoded business rule",
+      "filtered result set"
+    ],
+    "forbidden_claims": [
+      "JD Edwards",
+      "Fusion schema change",
+      "index creation"
+    ],
+    "expected_sources": [
+      "e-business",
+      "security",
+      "concurrent"
+    ],
+    "qrels": [
+      "ap_invoices_all",
+      "ebs"
+    ]
   },
   {
-    "id": "bench-plsql-ebs",
+    "id": "bench-ebs-plsql-concurrent",
     "label": "EBS Concurrent Program PL/SQL",
     "language": "sql",
     "artifact_type": "plsql",
     "oracle_product": "ebs",
     "baseline_manual_review_seconds": 720,
-    "code": "CREATE OR REPLACE PROCEDURE xxap_invoice_sync(errbuf OUT VARCHAR2, retcode OUT NUMBER) IS BEGIN INSERT INTO xxap_audit_log(message_text, created_on) VALUES('SYNC START', SYSDATE); COMMIT; EXCEPTION WHEN OTHERS THEN retcode := 2; errbuf := SQLERRM; END;",
-    "expected": {
-      "functional_intent_keywords": ["concurrent program", "invoice sync", "audit log"],
-      "data_flow_keywords": ["insert", "xxap_audit_log", "exception"],
-      "complexity_hotspots": ["exception branch"],
-      "security_findings": ["broad exception handling"],
-      "performance_findings": ["commit inside procedure"],
-      "anti_patterns": ["when others"],
-      "hardcoding_gaps": ["SYNC START"],
-      "error_handling_gaps": ["exception logging"],
-      "refactor_recommendations": ["replace broad exception handling"],
-      "oracle_grounding_sources": ["e-business suite", "concurrent"]
-    }
+    "query": "Explain an EBS concurrent-program PL/SQL procedure with transaction and exception risks.",
+    "artifact": "CREATE OR REPLACE PROCEDURE xxap_invoice_sync(errbuf OUT VARCHAR2, retcode OUT NUMBER) IS BEGIN INSERT INTO xxap_audit_log(message_text, created_on) VALUES('SYNC START', SYSDATE); COMMIT; EXCEPTION WHEN OTHERS THEN retcode := 2; errbuf := SQLERRM; END;",
+    "expected_claims": [
+      "broad exception handling",
+      "commit inside procedure",
+      "credential or transaction risk"
+    ],
+    "forbidden_claims": [
+      "JD Edwards",
+      "Fusion SaaS schema change"
+    ],
+    "expected_sources": [
+      "e-business",
+      "security"
+    ],
+    "qrels": [
+      "ebs",
+      "security"
+    ]
   },
   {
-    "id": "bench-groovy-jde",
+    "id": "bench-jde-groovy-approval",
     "label": "JDE Groovy Orchestration Rule",
     "language": "groovy",
     "artifact_type": "groovy",
     "oracle_product": "jde",
     "baseline_manual_review_seconds": 660,
-    "code": "def amount = payload.orderAmount as BigDecimal\nif (amount > 10000) {\n  return [approvalRequired: true, approver: 'FIN_DIRECTOR']\n}\nreturn [approvalRequired: false]",
-    "expected": {
-      "functional_intent_keywords": ["approval", "order amount", "financial approval"],
-      "data_flow_keywords": ["payload", "orderAmount", "approvalRequired"],
-      "complexity_hotspots": ["threshold branch"],
-      "security_findings": [],
-      "performance_findings": [],
-      "anti_patterns": ["hard-coded approver"],
-      "hardcoding_gaps": ["FIN_DIRECTOR", "10000"],
-      "error_handling_gaps": ["null payload handling"],
-      "refactor_recommendations": ["externalize approval threshold"],
-      "oracle_grounding_sources": ["jd edwards", "enterpriseone"]
-    }
+    "query": "Explain a JD Edwards orchestration rule and identify approval-rule hardcoding.",
+    "artifact": "def amount = payload.orderAmount as BigDecimal\nif (amount > 10000) {\n  return [approvalRequired: true, approver: 'FIN_DIRECTOR']\n}\nreturn [approvalRequired: false]",
+    "expected_claims": [
+      "structured approval or workflow decision",
+      "hardcoded business rule",
+      "payload values"
+    ],
+    "forbidden_claims": [
+      "E-Business Suite",
+      "database index creation"
+    ],
+    "expected_sources": [
+      "jd edwards",
+      "enterpriseone",
+      "orchestrator"
+    ],
+    "qrels": [
+      "jde",
+      "enterpriseone"
+    ]
   },
   {
-    "id": "bench-bip-fusion",
+    "id": "bench-fusion-bip-suppliers",
     "label": "Fusion BI Publisher Config",
-    "language": "oic",
+    "language": "xml",
     "artifact_type": "bip",
     "oracle_product": "fusion",
     "baseline_manual_review_seconds": 540,
-    "code": "<dataModel><sqlStatement name=\"Q1\"><![CDATA[select supplier_name, supplier_number from poz_suppliers where enabled_flag = 'Y']]></sqlStatement></dataModel>",
-    "expected": {
-      "functional_intent_keywords": ["supplier report", "bi publisher", "active suppliers"],
-      "data_flow_keywords": ["data model", "sqlStatement", "poz_suppliers"],
-      "complexity_hotspots": [],
-      "security_findings": ["supplier master data"],
-      "performance_findings": [],
-      "anti_patterns": ["hard-coded enabled flag"],
-      "hardcoding_gaps": ["enabled_flag"],
-      "error_handling_gaps": [],
-      "refactor_recommendations": ["parameterize active supplier filter"],
-      "oracle_grounding_sources": ["fusion", "applications"]
-    }
+    "query": "Explain a Fusion BI Publisher supplier extract and identify hardcoded filters.",
+    "artifact": "<dataModel><sqlStatement name=\"Q1\"><![CDATA[select supplier_name, supplier_number from poz_suppliers where enabled_flag = 'Y']]></sqlStatement></dataModel>",
+    "expected_claims": [
+      "filtered result set",
+      "hardcoded business rule",
+      "supplier extract"
+    ],
+    "forbidden_claims": [
+      "JD Edwards",
+      "E-Business Suite concurrent program",
+      "create index"
+    ],
+    "expected_sources": [
+      "fusion",
+      "procurement",
+      "suppliers"
+    ],
+    "qrels": [
+      "fusion",
+      "poz_suppliers"
+    ]
   },
   {
-    "id": "bench-oic-epm",
+    "id": "bench-epm-oic-budget-load",
     "label": "EPM OIC Flow Extract",
-    "language": "oic",
+    "language": "json",
     "artifact_type": "oic",
     "oracle_product": "epm",
     "baseline_manual_review_seconds": 780,
-    "code": "{\"integrationName\":\"EPM_Budget_Load\",\"trigger\":\"schedule\",\"steps\":[{\"type\":\"stageFile\",\"name\":\"ReadBudget\"},{\"type\":\"invoke\",\"target\":\"EPM_IMPORT\"},{\"type\":\"notify\",\"channel\":\"email\"}]}",
-    "expected": {
-      "functional_intent_keywords": ["budget load", "epm import", "scheduled integration"],
-      "data_flow_keywords": ["stage file", "invoke", "notify"],
-      "complexity_hotspots": ["integration steps"],
-      "security_findings": ["notification handling"],
-      "performance_findings": ["batch import"],
-      "anti_patterns": [],
-      "hardcoding_gaps": ["email"],
-      "error_handling_gaps": ["invoke failure handling"],
-      "refactor_recommendations": ["add retry or fault path"],
-      "oracle_grounding_sources": ["epm", "planning"]
-    }
+    "query": "Explain an EPM budget-load integration and identify unsupported notification or retry assumptions.",
+    "artifact": "{\"integrationName\":\"EPM_Budget_Load\",\"trigger\":\"schedule\",\"steps\":[{\"type\":\"stageFile\",\"name\":\"ReadBudget\"},{\"type\":\"invoke\",\"target\":\"EPM_IMPORT\"},{\"type\":\"notify\",\"channel\":\"email\"}]}",
+    "expected_claims": [
+      "integration step sequence",
+      "notification",
+      "budget"
+    ],
+    "forbidden_claims": [
+      "missing authentication configuration",
+      "JD Edwards",
+      "audit trail exists"
+    ],
+    "expected_sources": [
+      "epm",
+      "planning",
+      "integration"
+    ],
+    "qrels": [
+      "epm",
+      "integration"
+    ]
   },
   {
-    "id": "bench-shell-ebs",
+    "id": "bench-ebs-shell-patch",
     "label": "EBS Shell Deployment Script",
     "language": "shell",
     "artifact_type": "script",
     "oracle_product": "ebs",
     "baseline_manual_review_seconds": 420,
-    "code": "#!/bin/bash\nexport APPL_TOP=/u01/R122_EBS/EBSapps/appl\nsqlplus apps/apps123 <<EOF\n@deploy_patch.sql\nEOF",
-    "expected": {
-      "functional_intent_keywords": ["deployment script", "ebs", "patch deployment"],
-      "data_flow_keywords": ["export", "sqlplus", "deploy_patch.sql"],
-      "complexity_hotspots": [],
-      "security_findings": ["credentials in script"],
-      "performance_findings": [],
-      "anti_patterns": ["hard-coded credentials"],
-      "hardcoding_gaps": ["apps/apps123", "APPL_TOP"],
-      "error_handling_gaps": ["sqlplus exit handling"],
-      "refactor_recommendations": ["move credentials to secure store"],
-      "oracle_grounding_sources": ["e-business suite", "maintenance"]
-    }
+    "query": "Explain an EBS shell deployment script and identify credential exposure and missing failure handling.",
+    "artifact": "#!/bin/bash\nexport APPL_TOP=/u01/R122_EBS/EBSapps/appl\nsqlplus apps/apps123 <<EOF\n@deploy_patch.sql\nEOF",
+    "expected_claims": [
+      "credential exposure",
+      "missing failure handling",
+      "APPL_TOP"
+    ],
+    "forbidden_claims": [
+      "JD Edwards",
+      "cached application restart",
+      "unsupported schema changes"
+    ],
+    "expected_sources": [
+      "e-business",
+      "security",
+      "appl_top"
+    ],
+    "qrels": [
+      "ebs",
+      "security"
+    ]
   }
 ]

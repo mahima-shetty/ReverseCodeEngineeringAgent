@@ -1,0 +1,7 @@
+case_id,label,artifact_type,oracle_product,final_status,grounded_accuracy,claim_support_rate,unsupported_claim_rate,citation_precision,recall_at_k,mrr,workflow_success,latency_seconds,cost_per_bundle_usd
+bench-ebs-sql-ap-invoices,EBS AP Invoice Extract,sql,ebs,rejected,33.34,66.67,33.33,0.0,0.0,0.0,False,2.145,0.0
+bench-ebs-plsql-concurrent,EBS Concurrent Program PL/SQL,plsql,ebs,rejected,18.75,0.0,25.0,0.0,0.0,0.0,False,2.142,0.0
+bench-jde-groovy-approval,JDE Groovy Orchestration Rule,groovy,jde,rejected,35.72,100.0,57.14,0.0,0.0,0.0,False,2.119,0.0
+bench-fusion-bip-suppliers,Fusion BI Publisher Config,bip,fusion,rejected,19.45,66.67,88.89,0.0,0.0,0.0,False,2.153,0.0
+bench-epm-oic-budget-load,EPM OIC Flow Extract,oic,epm,rejected,43.33,33.33,60.0,100.0,0.0,0.0,False,2.133,0.0
+bench-ebs-shell-patch,EBS Shell Deployment Script,script,ebs,rejected,25.0,0.0,0.0,0.0,0.0,0.0,False,2.131,0.0

@@ -25,6 +25,7 @@ function loadBackendEnv() {
     const value = raw.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
     values[key] = value;
   }
+
   cachedBackendEnv = values;
   return values;
 }
@@ -48,8 +49,18 @@ export default class CodeLensApiProvider {
     const backendEnv = loadBackendEnv();
     const apiBase = (vars.apiBase || DEFAULT_API_BASE).replace(/\/$/, '');
     const endpoint = vars.endpoint || process.env.BLUEVERSE_URL || backendEnv.BLUEVERSE_URL || '';
-    const token = vars.token || requireEnv('BLUEVERSE_BEARER_TOKEN');
-    const judgeToken = vars.judgeToken || requireEnv('BLUEVERSE_JUDGE_BEARER_TOKEN');
+    const token = vars.token || process.env.BLUEVERSE_BEARER_TOKEN || backendEnv.BLUEVERSE_BEARER_TOKEN || '';
+    const judgeToken =
+      vars.judgeToken ||
+      process.env.BLUEVERSE_JUDGE_BEARER_TOKEN ||
+      backendEnv.BLUEVERSE_JUDGE_BEARER_TOKEN ||
+      '';
+
+    if (!judgeToken) {
+      throw new Error(
+        'Missing judge token. Set BLUEVERSE_JUDGE_BEARER_TOKEN in backend/.env or export it before running Promptfoo.'
+      );
+    }
 
     const payload = {
       endpoint,
@@ -95,7 +106,8 @@ export default class CodeLensApiProvider {
 
     return {
       output: JSON.stringify(item),
-      tokenUsage: item?.judge_evaluation?.provider_metadata?.usage || item?.final_output?.llm_metadata?.usage,
+      tokenUsage:
+        item?.judge_evaluation?.provider_metadata?.usage || item?.final_output?.llm_metadata?.usage,
       metadata: {
         final_status: item.final_status,
         analysis_state: item.analysis_state,

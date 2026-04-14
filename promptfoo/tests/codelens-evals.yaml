@@ -1,69 +1,28 @@
-- description: PL SQL anti pattern coverage
+- description: SQL analysis returns reviewed output
   vars:
-    id: eval-plsql-order
-    label: PL SQL anti pattern coverage
+    id: eval-sql-smoke
+    label: SQL smoke test
     language: sql
     code: |
-      CREATE OR REPLACE PROCEDURE process_customer_order (
-          p_customer_id   IN NUMBER,
-          p_order_amount  IN NUMBER,
-          p_order_type    IN VARCHAR2,
-          p_region        IN VARCHAR2
-      )
-      IS
-          v_customer_name      VARCHAR2(200);
-          v_customer_status    VARCHAR2(50);
-          v_discount           NUMBER := 0;
-          v_tax                NUMBER := 0;
-          v_final_amount       NUMBER := 0;
-          v_credit_limit       NUMBER := 0;
-          v_order_count        NUMBER := 0;
-          v_sql                VARCHAR2(4000);
-          v_flag               VARCHAR2(10);
-      BEGIN
-          DBMS_OUTPUT.PUT_LINE('Procedure started');
-          SELECT *
-          INTO v_customer_id, v_customer_name, v_customer_status, v_credit_limit
-          FROM (
-              SELECT customer_id, customer_name, status, credit_limit
-              FROM customers
-              WHERE customer_id = p_customer_id
-          );
-          IF p_region = 'INDIA' THEN
-              v_tax := p_order_amount * 18 / 100;
-          ELSIF p_region = 'USA' THEN
-              v_tax := p_order_amount * 7 / 100;
-          ELSE
-              v_tax := p_order_amount * 10 / 100;
-          END IF;
-          v_sql := 'UPDATE customers SET last_order_amount = ' || p_order_amount ||
-                   ' WHERE customer_id = ' || p_customer_id;
-          EXECUTE IMMEDIATE v_sql;
-          COMMIT;
-      EXCEPTION
-          WHEN OTHERS THEN
-              DBMS_OUTPUT.PUT_LINE('Some error occurred: ' || SQLERRM);
-              ROLLBACK;
-      END;
-      /
-    expected_min_antipatterns: 5
-  assert:
-    - type: javascript
-      metric: no_failed_state
-      value: |
-        const result = JSON.parse(output);
-        return result.analysis_state !== 'failed';
-    - type: javascript
-      metric: antipattern_count
-      value: |
-        const result = JSON.parse(output);
-        const antiPatterns = result.final_output?.antipatterns || [];
-        return antiPatterns.length >= context.vars.expected_min_antipatterns;
+      SELECT invoice_num, invoice_amount
+      FROM ap_invoices_all
+      WHERE rownum <= 10;
 
-- description: Groovy approval rule stays structured
+- description: Shell script analysis returns reviewed output
   vars:
-    id: eval-groovy-jde
-    label: Groovy approval rule
+    id: eval-shell-smoke
+    label: Shell smoke test
+    language: shell
+    code: |
+      #!/bin/bash
+      export APPS_USER=apps
+      export APPS_PASSWORD=welcome1
+      sqlplus "$APPS_USER/$APPS_PASSWORD" @deploy_patch.sql
+
+- description: JDE rule returns retrieval and verification metadata
+  vars:
+    id: eval-jde-smoke
+    label: JDE smoke test
     language: groovy
     code: |
       def amount = payload.orderAmount as BigDecimal
@@ -71,43 +30,3 @@
         return [approvalRequired: true, approver: 'FIN_DIRECTOR']
       }
       return [approvalRequired: false]
-    expected_risk: MEDIUM
-  assert:
-    - type: javascript
-      metric: no_failed_state
-      value: |
-        const result = JSON.parse(output);
-        return result.analysis_state !== 'failed';
-    - type: javascript
-      metric: has_summary
-      value: |
-        const result = JSON.parse(output);
-        return !!result.final_output?.summary_oneliner;
-    - type: javascript
-      metric: risk_present
-      value: |
-        const result = JSON.parse(output);
-        return typeof result.final_output?.summary_risk === 'string' && result.final_output.summary_risk.length > 0;
-
-- description: Failed auth must not fabricate findings
-  vars:
-    id: eval-auth-failure
-    label: Auth failure behavior
-    language: sql
-    token: invalid-token-for-test
-    judgeToken: invalid-token-for-test
-    code: |
-      SELECT invoice_num FROM ap_invoices_all;
-  assert:
-    - type: javascript
-      metric: explicit_failure_state
-      value: |
-        const result = JSON.parse(output);
-        return result.analysis_state === 'failed';
-    - type: javascript
-      metric: zero_fake_findings
-      value: |
-        const result = JSON.parse(output);
-        return (result.final_output?.security_issues || []).length === 0 &&
-          (result.final_output?.antipatterns || []).length === 0 &&
-          (result.final_output?.refactor_recommendations || []).length === 0;

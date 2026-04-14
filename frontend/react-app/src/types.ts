@@ -9,8 +9,10 @@ export interface AnalysisInput {
 }
 
 export interface RagCitation {
+  chunk_id?: string;
   source: string;
   excerpt: string;
+  product?: string;
 }
 
 export interface RagDiagnostics {
@@ -20,33 +22,114 @@ export interface RagDiagnostics {
   returned_hits?: number;
 }
 
+export interface HardcodedItemRaw {
+  type?: string;
+  description?: string;
+  evidence?: string;
+}
+
+export interface TestScenarioRaw {
+  title?: string;
+  type?: string;
+  description?: string;
+  source?: string;
+}
+
+export interface ImpactSummaryRaw {
+  business_impact?: string;
+  risk_overview?: string;
+  risk_level?: string;
+  top_actions?: string[];
+}
+
+export interface RetrievalHit {
+  chunk_id: string;
+  source: string;
+  title: string;
+  section_path: string[];
+  product: string;
+  text: string;
+  excerpt: string;
+  dense_score: number;
+  sparse_score: number;
+  fused_score: number;
+  rerank_score: number;
+}
+
+export interface RetrievalBundle {
+  query: string;
+  inferred_product: string;
+  corpus_version: string;
+  lexical_candidates: RetrievalHit[];
+  reranked_hits: RetrievalHit[];
+}
+
+export interface ClaimVerification {
+  claim: string;
+  source_fields: string[];
+  status: 'supported' | 'weakly_supported' | 'unsupported';
+  evidence_chunk_ids: string[];
+  confidence: number;
+}
+
+export interface VerificationSummary {
+  claims: ClaimVerification[];
+  supported_claim_rate: number;
+  unsupported_claim_rate: number;
+  grounded_accuracy: number;
+  unsupported_claims: string[];
+}
+
+export interface TraceEvent {
+  step: string;
+  started_at: string;
+  finished_at: string;
+  duration_ms: number;
+  status: 'ok' | 'degraded' | 'failed';
+  provider?: string;
+  details?: Record<string, unknown>;
+}
+
 export interface FlatBlueverseRaw {
   summary_oneliner?: string;
   summary_complexity?: string;
   summary_risk?: string;
   functional_purpose?: string;
-  functional_inputs?: string;
-  functional_outputs?: string;
-  dataflow_steps?: string;
+  business_logic?: unknown;
+  side_effects?: unknown;
+  functional_inputs?: unknown;
+  functional_outputs?: unknown;
+  testable_interpretation?: unknown;
+  dataflow_steps?: unknown;
+  dataflow_tables?: unknown;
+  dataflow_transformations?: unknown;
   complexity_score?: number | string;
+  nesting_depth?: number | string;
+  maintainability?: string | number;
+  readability?: string | number;
+  testability?: string | number;
   security_score?: number | string;
-  security_issues?: string;
-  antipatterns?: string;
-  refactor_recommendations?: string;
-  jira_tickets?: string;
+  security_issues?: unknown;
+  hardcoded_items?: unknown;
+  antipatterns?: unknown;
+  refactor_recommendations?: unknown;
+  jira_tickets?: unknown;
+  test_scenarios?: unknown;
+  impact_summary?: ImpactSummaryRaw;
   rag_citations?: RagCitation[];
   rag_diagnostics?: RagDiagnostics;
   llm_metadata?: {
     provider?: string;
     model?: string;
-    usage?: {
-      input_tokens?: number;
-      output_tokens?: number;
-      total_tokens?: number;
-    };
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
     cost_usd?: number;
-    fallback_used?: boolean;
     duration_seconds?: number;
+    raw_status?: string;
+    error_message?: string;
+    provider_failures?: string[];
+    failure_reason?: string;
   };
   [key: string]: unknown;
 }
@@ -91,14 +174,13 @@ export interface JudgeEvaluation {
   provider_metadata?: {
     provider?: string;
     model?: string;
-    usage?: {
-      input_tokens?: number;
-      output_tokens?: number;
-      total_tokens?: number;
-    };
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
     cost_usd?: number;
-    fallback_used?: boolean;
     duration_seconds?: number;
+    raw_status?: string;
+    error_message?: string;
   };
 }
 
@@ -118,6 +200,7 @@ export interface NormalizedResult {
     inputs: string[];
     outputs: string[];
     sideEffects: string[];
+    testableInterpretation: string[];
   };
   dataFlow: {
     steps: string[];
@@ -133,7 +216,7 @@ export interface NormalizedResult {
   };
   security: {
     issues: { severity: string; type: string; description: string; line: string; confidence_score: string; evidence: string }[];
-    hardcoding: { type?: string; description?: string }[];
+    hardcoding: { type?: string; description?: string; evidence?: string }[];
     score: number;
   };
   antiPatterns: {
@@ -161,6 +244,18 @@ export interface NormalizedResult {
   }[];
   ragCitations: RagCitation[];
   ragDiagnostics: RagDiagnostics;
+  testScenarios: {
+    title: string;
+    type: string;
+    description: string;
+    source: string;
+  }[];
+  impactSummaryRaw?: {
+    businessImpact: string;
+    riskOverview: string;
+    riskLevel: 'Low' | 'Medium' | 'High';
+    topActions: string[];
+  };
 }
 
 export interface AnalyzeBatchItemRaw {
@@ -170,11 +265,14 @@ export interface AnalyzeBatchItemRaw {
   original_input: string;
   primary_output: FlatBlueverseRaw;
   final_output?: FlatBlueverseRaw;
+  retrieval?: RetrievalBundle;
+  verification?: VerificationSummary;
+  execution_trace?: TraceEvent[];
   judge_evaluation: JudgeEvaluation;
   final_status: 'approved' | 'flagged' | 'rejected';
   deliverable: boolean;
   analysis_state?: 'ok' | 'degraded' | 'failed';
-  render_source?: 'judge_reviewed' | 'primary_fallback' | 'failed' | 'none';
+  render_source?: 'graph' | 'heuristic' | 'failed' | 'none';
   failure_reason?: string;
   session_id?: string;
 }
@@ -198,10 +296,13 @@ export interface BatchAnalysisItem {
   finalRaw: FlatBlueverseRaw;
   finalResult: NormalizedResult;
   judgeEvaluation: JudgeEvaluation;
+  retrieval: RetrievalBundle | null;
+  verification: VerificationSummary | null;
+  executionTrace: TraceEvent[];
   finalStatus: 'approved' | 'flagged' | 'rejected';
   deliverable: boolean;
   analysisState: 'ok' | 'degraded' | 'failed';
-  renderSource: 'judge_reviewed' | 'primary_fallback' | 'failed' | 'none';
+  renderSource: 'graph' | 'heuristic' | 'failed' | 'none';
   failureReason: string;
 }
 
@@ -230,6 +331,28 @@ export interface BenchmarkSampleResultRaw {
   judge_evaluation: JudgeEvaluation;
   final_status: 'approved' | 'flagged' | 'rejected';
   deliverable: boolean;
+  actual_result: FlatBlueverseRaw;
+  expected_answer: {
+    summary: string;
+    raw_expected: {
+      query: string;
+      expected_claims: string[];
+      forbidden_claims: string[];
+      expected_sources: string[];
+      qrels: string[];
+    };
+  };
+  case_kpis: {
+    grounded_accuracy: number;
+    claim_support_rate: number;
+    unsupported_claim_rate: number;
+    citation_precision: number;
+    recall_at_k: number;
+    mrr: number;
+    workflow_success: boolean;
+    latency_seconds: number;
+    cost_per_bundle_usd: number;
+  };
   analysis_item: AnalyzeBatchItemRaw;
 }
 
@@ -240,22 +363,18 @@ export interface BenchmarkSummary {
   rejected: number;
   kpis: {
     review_time_reduction_percent: number;
-    review_time_target_met: boolean;
-    reviewer_confidence_percent: number;
-    reviewer_confidence_target_met: boolean;
-    anti_pattern_catch_rate_percent: number;
-    anti_pattern_target_met: boolean;
-    critical_issue_recall_percent: number;
+    claim_support_rate_percent?: number;
     unsupported_claim_rate_percent: number;
-    oracle_grounding_pass_rate_percent: number;
-    time_to_first_useful_output_seconds: number;
-    time_to_first_useful_output_target_met: boolean;
-    manual_judge_score: number;
-    adoption_target_met: boolean;
-    post_release_defect_reduction: string;
+    citation_precision_percent?: number;
+    recall_at_k_percent?: number;
+    mrr_percent?: number;
+    grounded_accuracy_percent: number;
+    workflow_success_rate_percent: number;
+    p95_latency_seconds: number;
+    cost_per_bundle_usd: number;
   };
-  artifact_type_breakdown: Record<string, { count: number; approved: number; avg_review_time_reduction: number }>;
-  oracle_product_breakdown: Record<string, { count: number; approved: number; avg_grounding: number }>;
+  artifact_type_breakdown: Record<string, { count: number; approved: number; avg_grounded_accuracy: number }>;
+  oracle_product_breakdown: Record<string, { count: number; approved: number; avg_grounded_accuracy: number }>;
 }
 
 export interface BenchmarkEvaluationResponseRaw {
@@ -288,6 +407,29 @@ export interface BenchmarkSampleResult {
   judgeEvaluation: JudgeEvaluation;
   finalStatus: 'approved' | 'flagged' | 'rejected';
   deliverable: boolean;
+  actualResult: NormalizedResult;
+  actualRaw: FlatBlueverseRaw;
+  expectedAnswer: {
+    summary: string;
+    rawExpected: {
+      query: string;
+      expected_claims: string[];
+      forbidden_claims: string[];
+      expected_sources: string[];
+      qrels: string[];
+    };
+  };
+  caseKpis: {
+    groundedAccuracy: number;
+    claimSupportRate: number;
+    unsupportedClaimRate: number;
+    citationPrecision: number;
+    recallAtK: number;
+    mrr: number;
+    workflowSuccess: boolean;
+    latencySeconds: number;
+    costPerBundleUsd: number;
+  };
   analysisItem: BatchAnalysisItem;
 }
 

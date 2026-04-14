@@ -6,14 +6,12 @@ import type {
   BatchAnalysisItem,
   BatchAnalysisSummary,
   BenchmarkEvaluationResult,
-  BenchmarkSampleResult,
 } from './types';
 import { PersonaProvider } from './context/PersonaContext';
 import { BatchResultsPanel } from './components/BatchResultsPanel';
+import { BenchmarkWorkspace } from './components/BenchmarkWorkspace';
 import { CodeInputPanel } from './components/CodeInputPanel';
 import { ConfigBar } from './components/ConfigBar';
-import { EvaluationDashboard } from './components/EvaluationDashboard';
-import { EvidenceDetailPanel } from './components/EvidenceDetailPanel';
 import { Header } from './components/Header';
 import { QuickSummary } from './components/QuickSummary';
 import { ReportPanel } from './components/ReportPanel';
@@ -41,6 +39,7 @@ function AppInner() {
   const [endpoint, setEndpoint] = useState('');
   const [token, setToken] = useState('');
   const [judgeToken, setJudgeToken] = useState('');
+  const [benchmarkJudgeToken, setBenchmarkJudgeToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState('Ready - configure tokens and add one or more inputs');
   const [statusActive, setStatusActive] = useState(false);
@@ -56,13 +55,6 @@ function AppInner() {
     () => items.find((item) => item.id === selectedId) ?? items[0] ?? null,
     [items, selectedId]
   );
-  const selectedBenchmarkSample = useMemo<BenchmarkSampleResult | null>(
-    () => benchmarkResult?.sampleResults.find((item) => item.caseId === selectedBenchmarkCaseId)
-      ?? benchmarkResult?.sampleResults[0]
-      ?? null,
-    [benchmarkResult, selectedBenchmarkCaseId]
-  );
-
   useEffect(() => {
     let cancelled = false;
 
@@ -142,7 +134,12 @@ function AppInner() {
 
     setBenchmarkLoading(true);
     try {
-      const raw = await evaluateBenchmarkApi(endpoint.trim(), token.trim(), judgeToken.trim());
+      const raw = await evaluateBenchmarkApi(
+        endpoint.trim(),
+        token.trim(),
+        judgeToken.trim(),
+        benchmarkJudgeToken.trim()
+      );
       const normalized = normalizeBenchmarkEvaluation(raw);
       setBenchmarkResult(normalized);
       setSelectedBenchmarkCaseId(normalized.sampleResults[0]?.caseId ?? null);
@@ -153,7 +150,7 @@ function AppInner() {
     } finally {
       setBenchmarkLoading(false);
     }
-  }, [endpoint, judgeToken, token]);
+  }, [benchmarkJudgeToken, endpoint, judgeToken, token]);
 
   return (
     <>
@@ -165,9 +162,11 @@ function AppInner() {
           endpoint={endpoint}
           token={token}
           judgeToken={judgeToken}
+          benchmarkJudgeToken={benchmarkJudgeToken}
           onEndpointChange={setEndpoint}
           onTokenChange={setToken}
           onJudgeTokenChange={setJudgeToken}
+          onBenchmarkJudgeTokenChange={setBenchmarkJudgeToken}
         />
         <div className="main">
           <CodeInputPanel
@@ -184,14 +183,13 @@ function AppInner() {
           {selectedItem ? <ReportPanel result={selectedItem.finalResult} item={selectedItem} /> : null}
         </div>
         <div className="benchmark-section">
-          <EvaluationDashboard
+          <BenchmarkWorkspace
             result={benchmarkResult}
             selectedCaseId={selectedBenchmarkCaseId}
             onSelectCase={setSelectedBenchmarkCaseId}
             onRunEvaluation={runBenchmark}
             loading={benchmarkLoading}
           />
-          <EvidenceDetailPanel sample={selectedBenchmarkSample} />
         </div>
       </div>
     </>

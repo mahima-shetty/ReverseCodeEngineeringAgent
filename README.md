@@ -62,9 +62,68 @@ You will need to run both the **Backend API** and the **Vite React Frontend** si
 - **Confidence & Evidence Scoring**: LLM insights are scored securely. Confidence percentages and specific line-code rule `Evidence` are extracted and highlighted directly throughout the UI.
 - **Jira Automation**: Findings are immediately compiled into actionable tickets labeled with `Types` and weighted via `Story Points`. Access them globally from the new **Jira Tasks** workspace tab.
 
+## RAG Modes
+
+CodeLens supports two retrieval paths:
+
+- **Vertex AI RAG** for managed corpus retrieval when your GCP quota is available
+- **Local semantic RAG** using Sentence Transformers + FAISS for quota-free retrieval on cached Oracle documentation
+
+The backend merges local keyword retrieval, local semantic retrieval, and Vertex retrieval. The analysis output includes `rag_diagnostics`, including `local_hits`, `semantic_hits`, and `vertex_hits`, so you can verify which path returned evidence for a query.
+
+Configuration:
+
+```powershell
+LOCAL_SEMANTIC_RAG_ENABLED=true
+LOCAL_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+```
+
 ## LLM Integration Notes
 
 - Primary provider: BlueVerse
 - Fallback chain: BlueVerse -> Claude -> OpenAI -> Gemini
 - Token/cost usage logs: `backend/logs/llm_usage.jsonl`
 - Provider/session/prompt strategy details: [ProjectDocs/LLM_INTEGRATION.md](ProjectDocs/LLM_INTEGRATION.md)
+
+## Promptfoo
+
+This repo now includes a basic Promptfoo setup for evaluating the local CodeLens backend.
+
+Quick start:
+
+```powershell
+npm install
+npm run promptfoo:eval
+```
+
+To open the Promptfoo UI:
+
+```powershell
+npm run promptfoo:view
+```
+
+Files:
+- `promptfooconfig.yaml`
+- `promptfoo/providers/codelens-api.mjs`
+- `promptfoo/tests/codelens-evals.yaml`
+
+The Promptfoo provider calls the local backend at `http://127.0.0.1:8000/api/analyze` by default and reads tokens from `backend/.env`.
+
+## Docker
+
+You can run the backend and frontend together with Docker Compose.
+
+1. Create `backend/.env` from `backend/.env.example` and fill in your runtime secrets.
+2. If you use Vertex AI RAG, put your GCP service account key at `backend/secrets/gcp-sa.json`.
+   In Docker, the backend is forced to use `/app/secrets/gcp-sa.json` as `GOOGLE_APPLICATION_CREDENTIALS`.
+3. From the project root, start the stack:
+   ```powershell
+   docker compose up --build
+   ```
+4. Open:
+   - Frontend: `http://localhost:5173`
+   - Backend health: `http://localhost:8000/health`
+
+Notes:
+- The frontend proxies `/api/*` to the backend container, so no extra frontend API env var is required.
+- `backend/logs` and `backend/evidence` are mounted as volumes so generated artifacts persist across restarts.

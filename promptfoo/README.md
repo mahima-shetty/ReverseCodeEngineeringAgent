@@ -1,39 +1,41 @@
-# Promptfoo For CodeLens
+# Promptfoo
 
-This folder contains a starter Promptfoo evaluation harness for the local CodeLens API.
-
-## What it does
-
-- Calls `POST /api/analyze` on the local backend
-- Evaluates the returned `final_output`
-- Checks that the UI-facing response is structured
-- Verifies that failures do not fabricate fake findings
+This project includes a basic Promptfoo harness for evaluating the local CodeLens backend.
 
 ## Prerequisites
 
-- Backend running on `http://127.0.0.1:8000`
-- Valid tokens available either in:
-  - `backend/.env` as `BLUEVERSE_BEARER_TOKEN` and `BLUEVERSE_JUDGE_BEARER_TOKEN`
-  - or shell environment variables with the same names
-- Optional:
-  - `CODELENS_API_BASE`
-  - `BLUEVERSE_URL`
+- Backend running locally or via Docker at `http://127.0.0.1:8000`
+- `backend/.env` populated with valid BlueVerse tokens, especially `BLUEVERSE_JUDGE_BEARER_TOKEN`
+- Node.js installed on the host machine
 
-## Run
+## Install
+
+From the project root:
 
 ```powershell
-npx promptfoo@latest eval -c promptfooconfig.yaml
+npm install
 ```
 
-## View results
+## Run evaluations
 
 ```powershell
-npx promptfoo@latest view
+npm run promptfoo:eval
+```
+
+This uses [promptfooconfig.yaml](../../promptfooconfig.yaml) and writes results to `promptfoo/output/latest-results.json`.
+
+## Open the Promptfoo UI
+
+```powershell
+npm run promptfoo:view
 ```
 
 ## Notes
 
-- The provider returns the first item from the CodeLens analysis batch.
-- Assertions inspect `final_output`, not the raw primary output.
-- The `Failed auth must not fabricate findings` case is intentionally negative and verifies explicit failure behavior.
-- By default the provider reuses `backend/.env`, so Promptfoo can run against the same credentials as the local backend.
+- The custom provider calls `POST /api/analyze` on the local backend.
+- By default it reads tokens from `backend/.env`.
+- You can override the backend URL with `CODELENS_API_BASE`, for example:
+  ```powershell
+  $env:CODELENS_API_BASE='http://127.0.0.1:8000'
+  npm run promptfoo:eval
+  ```

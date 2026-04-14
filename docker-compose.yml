@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      GOOGLE_APPLICATION_CREDENTIALS: /app/secrets/gcp-sa.json
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/evidence:/app/evidence
+      - ./backend/logs:/app/logs
+      - ./backend/secrets:/app/secrets:ro
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend/react-app
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    restart: unless-stopped

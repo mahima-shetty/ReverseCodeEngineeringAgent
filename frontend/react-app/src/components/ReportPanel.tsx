@@ -50,6 +50,13 @@ export function ReportPanel({ result, item }: Props) {
     panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [result]);
 
+  const activeProvider = item?.finalRaw.llm_metadata?.provider ?? 'unknown';
+  const providerFailures = item?.finalRaw.llm_metadata?.provider_failures ?? [];
+  const primaryTokens = item?.finalRaw.llm_metadata?.total_tokens ?? 'n/a';
+  const retrievalHits = item?.retrieval?.reranked_hits.length ?? 0;
+  const isHeuristicFallback = item?.renderSource === 'heuristic';
+  const hasProviderFailure = Boolean(item?.failureReason) || providerFailures.length > 0;
+
   return (
     <div className="panel output-panel visible" id="outputPanel" ref={panelRef}>
       {item ? (
@@ -60,8 +67,19 @@ export function ReportPanel({ result, item }: Props) {
               <div className="judge-pane-text">
                 {item.analysisState === 'failed'
                   ? `Analysis failed. ${item.failureReason || 'No reviewed result is available.'}`
-                  : `Showing validated fallback output from ${item.renderSource}. ${item.failureReason || 'Judge-corrected output was unavailable.'}`}
+                  : isHeuristicFallback
+                    ? `Showing fallback output from ${activeProvider}. ${item.failureReason || 'A provider returned no valid structured analysis.'}`
+                    : hasProviderFailure
+                      ? `Analysis completed with degraded quality. ${item.failureReason || 'One or more providers reported recoverable errors.'}`
+                      : `Analysis completed with degraded quality. Retrieved evidence or claim support was weak, but the structured result came from ${activeProvider}.`}
               </div>
+              {providerFailures.length > 0 ? (
+                <ul className="judge-blocking-list">
+                  {providerFailures.map((failure, index) => (
+                    <li key={index}>{failure}</li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
           ) : null}
           <div className="judge-overview-grid">
@@ -96,19 +114,20 @@ export function ReportPanel({ result, item }: Props) {
                 <span>Oracle grounding: {item.judgeEvaluation.validation.oracle_grounding}</span>
                 <span>Oracle specificity: {item.judgeEvaluation.validation.oracle_specificity}</span>
                 <span>Detected products: {(result.ragDiagnostics.products ?? []).join(', ') || 'none detected'}</span>
-                <span>Primary provider: {item.primaryRaw.llm_metadata?.provider ?? 'blueverse'}</span>
-                <span>Primary tokens: {item.primaryRaw.llm_metadata?.usage?.total_tokens ?? 'n/a'}</span>
-                <span>Primary cost: ${item.primaryRaw.llm_metadata?.cost_usd ?? 0}</span>
+                <span>Provider used: {activeProvider}</span>
+                <span>Total tokens: {primaryTokens}</span>
+                <span>Provider cost: ${item.finalRaw.llm_metadata?.cost_usd ?? 0}</span>
                 <span>Rendered from: {item.renderSource}</span>
+                <span>Retrieval hits: {retrievalHits}</span>
               </div>
             </div>
             <div className="judge-pane">
               <div className="summary-kicker">RAG Grounding Diagnostics</div>
               <div className="judge-score-grid">
                 <span>Products: {(result.ragDiagnostics.products ?? []).join(', ') || 'none detected'}</span>
-                <span>Local hits: {result.ragDiagnostics.local_hits ?? 0}</span>
-                <span>Vertex hits: {result.ragDiagnostics.vertex_hits ?? 0}</span>
-                <span>Returned citations: {result.ragDiagnostics.returned_hits ?? 0}</span>
+                <span>Returned citations: {result.ragCitations.length}</span>
+                <span>Retrieved hits: {retrievalHits}</span>
+                <span>Failure reason: {item.failureReason || 'none'}</span>
               </div>
             </div>
           </div>

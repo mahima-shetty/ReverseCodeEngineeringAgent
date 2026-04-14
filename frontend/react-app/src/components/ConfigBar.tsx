@@ -2,12 +2,23 @@ type Props = {
   endpoint: string;
   token: string;
   judgeToken: string;
+  benchmarkJudgeToken: string;
   onEndpointChange: (v: string) => void;
   onTokenChange: (v: string) => void;
   onJudgeTokenChange: (v: string) => void;
+  onBenchmarkJudgeTokenChange: (v: string) => void;
 };
 
-export function ConfigBar({ endpoint, token, judgeToken, onEndpointChange, onTokenChange, onJudgeTokenChange }: Props) {
+export function ConfigBar({
+  endpoint,
+  token,
+  judgeToken,
+  benchmarkJudgeToken,
+  onEndpointChange,
+  onTokenChange,
+  onJudgeTokenChange,
+  onBenchmarkJudgeTokenChange,
+}: Props) {
   return (
     <div className="config-bar">
       <label>ENDPOINT</label>
@@ -37,6 +48,16 @@ export function ConfigBar({ endpoint, token, judgeToken, onEndpointChange, onTok
         style={{ flex: 1 }}
         value={judgeToken}
         onChange={(e) => onJudgeTokenChange(e.target.value)}
+      />
+      <div className="config-divider" />
+      <label>BENCHMARK JUDGE TOKEN</label>
+      <input
+        className="config-input"
+        type="password"
+        placeholder="Optional separate benchmark judge token"
+        style={{ flex: 1 }}
+        value={benchmarkJudgeToken}
+        onChange={(e) => onBenchmarkJudgeTokenChange(e.target.value)}
       />
     </div>
   );

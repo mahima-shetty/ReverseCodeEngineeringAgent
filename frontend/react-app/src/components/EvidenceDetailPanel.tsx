@@ -19,10 +19,7 @@ export function EvidenceDetailPanel({ sample }: Props) {
         <div className="section-card benchmark-hero-card">
           <div className="benchmark-hero-topline">Selected Benchmark Case</div>
           <h3>{sample.analysisItem.label}</h3>
-          <p>
-            This view explains what the system saw, what it got right, what it missed, and how well the result stayed grounded
-            in Oracle specific evidence.
-          </p>
+          <p>This view shows the original artifact, structured gold expectations, and the claim-level grounding signals produced by the benchmark runner.</p>
         </div>
         <div className="evaluation-grid">
           <div className="section-card">
@@ -30,47 +27,43 @@ export function EvidenceDetailPanel({ sample }: Props) {
             <div className="code-block">{sample.analysisItem.originalInput}</div>
           </div>
           <div className="section-card">
-            <h3>Plain English Scorecard</h3>
+            <h3>Scorecard</h3>
             <ul>
-              <li>How accurate the result was: {sample.judgeEvaluation.validation.accuracy}</li>
-              <li>How well it stayed Oracle specific: {sample.judgeEvaluation.validation.oracle_grounding}</li>
-              <li>How specific the answer was to the product area: {sample.judgeEvaluation.validation.oracle_specificity}</li>
-              <li>How many valid findings it kept: {sample.judgeEvaluation.finding_metrics?.precision ?? 0}</li>
-              <li>How many important issues it caught: {sample.judgeEvaluation.finding_metrics?.recall ?? 0}</li>
-              <li>How many unsupported claims it made: {sample.judgeEvaluation.finding_metrics?.false_positive_rate ?? 0}</li>
+              <li>Grounded accuracy: {sample.caseKpis.groundedAccuracy}</li>
+              <li>Claim support rate: {sample.caseKpis.claimSupportRate}</li>
+              <li>Unsupported claim rate: {sample.caseKpis.unsupportedClaimRate}</li>
+              <li>Citation precision: {sample.caseKpis.citationPrecision}</li>
+              <li>Recall@K: {sample.caseKpis.recallAtK}</li>
+              <li>MRR: {sample.caseKpis.mrr}</li>
               <li>Time to first useful answer: {sample.judgeEvaluation.latency_metrics?.time_to_first_useful_output ?? 0}s</li>
               <li>Total runtime: {sample.judgeEvaluation.latency_metrics?.total_runtime ?? 0}s</li>
-              <li>Manual review time saved: {sample.reviewTimeReductionPercent}%</li>
             </ul>
           </div>
           <div className="section-card">
-            <h3>Matched Findings</h3>
+            <h3>Expected Gold</h3>
+            <ul>
+              <li>Query: {sample.expectedAnswer.rawExpected.query}</li>
+              <li>Expected claims: {sample.expectedAnswer.rawExpected.expected_claims.join(', ') || 'none'}</li>
+              <li>Forbidden claims: {sample.expectedAnswer.rawExpected.forbidden_claims.join(', ') || 'none'}</li>
+              <li>Expected sources: {sample.expectedAnswer.rawExpected.expected_sources.join(', ') || 'none'}</li>
+              <li>Gold qrels: {sample.expectedAnswer.rawExpected.qrels.join(', ') || 'none'}</li>
+            </ul>
+          </div>
+          <div className="section-card">
+            <h3>Matched and Missed</h3>
             <ul>
               {Object.entries(sample.matchedKeywords).map(([key, values]) => (
                 <li key={key}>{key}: {values.length ? values.join(', ') : 'none matched'}</li>
               ))}
             </ul>
-          </div>
-          <div className="section-card">
-            <h3>Missed and Unsupported</h3>
             <ul>
               {Object.entries(sample.missedKeywords).map(([key, values]) => (
                 <li key={key}>{key}: {values.length ? values.join(', ') : 'none missed'}</li>
               ))}
             </ul>
-            {sample.unsupportedFindings.length > 0 ? (
-              <>
-                <h3>Unsupported Claims</h3>
-                <ul>
-                  {sample.unsupportedFindings.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            ) : null}
           </div>
           <div className="section-card">
-            <h3>Oracle Grounding</h3>
+            <h3>Grounding</h3>
             <ul>
               <li>Expected sources: {sample.grounding.expectedSources.join(', ') || 'none'}</li>
               <li>Matched sources: {sample.grounding.matchedSources.join(', ') || 'none'}</li>

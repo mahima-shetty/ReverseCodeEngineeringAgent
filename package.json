@@ -1,0 +1,12 @@
+{
+  "name": "reversecodeengineeringagent-tools",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "promptfoo:eval": "promptfoo eval -c promptfooconfig.yaml",
+    "promptfoo:view": "promptfoo view"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.121.3"
+  }
+}

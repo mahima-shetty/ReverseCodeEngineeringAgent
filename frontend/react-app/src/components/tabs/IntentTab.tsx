@@ -14,77 +14,84 @@ export function IntentTab({ view, persona }: Props) {
     <>
       <ModeToggle />
 
-      {/* PM: Business Summary card instead of full technical purpose */}
       {persona === 'pm' && fi.businessSummary ? (
         <div className="section-card stream-in">
-          <h3>🎯 Business Summary</h3>
+          <h3>Business Summary</h3>
           <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{fi.businessSummary}</div>
         </div>
       ) : (
         <div className="section-card stream-in">
-          <h3>📋 Purpose</h3>
+          <h3>Purpose</h3>
           <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{fi.purpose}</div>
         </div>
       )}
 
-      {/* Business Logic — hide for PM (already in summary) */}
       {persona !== 'pm' && (fi.businessLogic?.length ?? 0) > 0 && (
         <div className="section-card stream-in">
-          <h3>⚙️ Business Logic</h3>
+          <h3>Business Logic</h3>
           <ul>
-            {fi.businessLogic.map((b, i) => (
-              <li key={i}>{b}</li>
+            {fi.businessLogic.map((item, index) => (
+              <li key={index}>{item}</li>
             ))}
           </ul>
         </div>
       )}
 
-      {/* Inputs & Outputs */}
       {persona !== 'pm' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <div className="section-card stream-in">
-            <h3>📥 Inputs</h3>
+            <h3>Inputs</h3>
             <ul>
-              {fi.inputs.map((input, i) => (
-                <li key={i}>{input}</li>
+              {fi.inputs.map((input, index) => (
+                <li key={index}>{input}</li>
               ))}
             </ul>
           </div>
           <div className="section-card stream-in">
-            <h3>📤 Outputs</h3>
+            <h3>Outputs</h3>
             <ul>
-              {fi.outputs.map((output, i) => (
-                <li key={i}>{output}</li>
+              {fi.outputs.map((output, index) => (
+                <li key={index}>{output}</li>
               ))}
             </ul>
           </div>
         </div>
       )}
 
-      {/* Side Effects — developer only */}
       {persona === 'developer' && (fi.sideEffects?.length ?? 0) > 0 && (
         <div className="section-card stream-in">
-          <h3>💥 Side Effects</h3>
+          <h3>Side Effects</h3>
           <ul>
-            {fi.sideEffects!.map((s, i) => (
-              <li key={i}>{s}</li>
+            {fi.sideEffects.map((item, index) => (
+              <li key={index}>{item}</li>
             ))}
           </ul>
         </div>
       )}
 
-      {/* QA: Testable interpretation note */}
       {persona === 'qa' && (
         <div className="section-card stream-in">
-          <h3>🧪 Testable Interpretation</h3>
-          <ul>
-            {fi.inputs.map((inp, i) => (
-              <li key={i}>Input: <strong>{inp}</strong> — verify validation and boundary conditions</li>
-            ))}
-            {fi.outputs.map((out, i) => (
-              <li key={i}>Output: <strong>{out}</strong> — verify expected vs actual results</li>
-            ))}
-          </ul>
+          <h3>Testable Interpretation</h3>
+          {(fi.testableInterpretation?.length ?? 0) > 0 ? (
+            <ul>
+              {fi.testableInterpretation.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          ) : (
+            <ul>
+              {fi.inputs.map((input, index) => (
+                <li key={index}>
+                  Input: <strong>{input}</strong> - verify validation and boundary conditions
+                </li>
+              ))}
+              {fi.outputs.map((output, index) => (
+                <li key={index}>
+                  Output: <strong>{output}</strong> - verify expected vs actual results
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </>

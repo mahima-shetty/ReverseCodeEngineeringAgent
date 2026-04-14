@@ -23,82 +23,49 @@ function formatSeconds(value: number): string {
   return `${value.toFixed(1)}s`;
 }
 
-function average(values: number[]): number {
-  if (!values.length) return 0;
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
-function buildOutcomeCards(result: BenchmarkEvaluationResult): ScoreCard[] {
+function buildMetricCards(result: BenchmarkEvaluationResult): ScoreCard[] {
   const { kpis } = result.summary;
-  const trustScore = average([
-    kpis.reviewer_confidence_percent,
-    kpis.oracle_grounding_pass_rate_percent,
-    Math.max(0, 100 - kpis.unsupported_claim_rate_percent),
-  ]);
-
   return [
     {
-      label: 'Review Speed Gain',
-      value: formatPercent(kpis.review_time_reduction_percent),
-      tone: 'cyan',
-      note: 'How much manual review time the system saves',
-    },
-    {
-      label: 'First Useful Answer',
-      value: formatSeconds(kpis.time_to_first_useful_output_seconds),
-      tone: 'purple',
-      note: 'Time until the first actionable output appears',
-    },
-    {
-      label: 'Review Quality',
-      value: formatPercent(kpis.critical_issue_recall_percent),
-      tone: 'orange',
-      note: 'How often important issues are caught in benchmark cases',
-    },
-    {
-      label: 'Trust Score',
-      value: formatPercent(trustScore),
-      tone: trustScore >= 70 ? 'green' : trustScore >= 45 ? 'orange' : 'red',
-      note: 'Combines judge confidence grounding and low unsupported claims',
-    },
-  ];
-}
-
-function buildProofCards(result: BenchmarkEvaluationResult): ScoreCard[] {
-  const artifactCoverage = Object.keys(result.summary.artifact_type_breakdown).length;
-  const oracleCoverage = Object.keys(result.summary.oracle_product_breakdown).length;
-  const judgedOutputs = result.sampleResults.length;
-  const citedOutputs = result.sampleResults.filter((sample) => sample.grounding.citationSources.length > 0).length;
-
-  return [
-    {
-      label: 'Artifact Coverage',
-      value: `${artifactCoverage}`,
+      label: 'Grounded Accuracy',
+      value: formatPercent(kpis.grounded_accuracy_percent),
       tone: 'green',
-      note: 'Different artifact types covered by the benchmark suite',
+      note: 'Composite of support rate, unsupported rate, citation precision, and retrieval recall',
     },
     {
-      label: 'Oracle Coverage',
-      value: `${oracleCoverage}`,
+      label: 'Claim Support',
+      value: formatPercent(kpis.claim_support_rate_percent ?? 0),
       tone: 'cyan',
-      note: 'Oracle product families evaluated in benchmark cases',
+      note: 'Expected claims recovered from evaluated outputs',
     },
     {
-      label: 'Judge Validated',
-      value: `${judgedOutputs}`,
+      label: 'Unsupported Rate',
+      value: formatPercent(kpis.unsupported_claim_rate_percent),
+      tone: 'red',
+      note: 'Claims marked unsupported or forbidden by the benchmark rules',
+    },
+    {
+      label: 'Recall@K',
+      value: formatPercent(kpis.recall_at_k_percent ?? 0),
       tone: 'purple',
-      note: 'Benchmark samples independently reviewed by the judge engine',
+      note: 'Retrieval coverage against gold qrels',
     },
     {
-      label: 'Evidence Traced',
-      value: `${citedOutputs}`,
-      tone: citedOutputs === judgedOutputs ? 'green' : 'orange',
-      note: 'Samples with citation evidence attached to the output',
+      label: 'MRR',
+      value: formatPercent(kpis.mrr_percent ?? 0),
+      tone: 'orange',
+      note: 'Rank quality for the first relevant supporting chunk',
+    },
+    {
+      label: 'Workflow Success',
+      value: formatPercent(kpis.workflow_success_rate_percent),
+      tone: 'green',
+      note: 'Cases that completed without degrading to a rejected output',
     },
   ];
 }
 
-export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRunEvaluation, loading }: Props) {
+export function EvaluationDashboard({ result, onRunEvaluation, loading }: Props) {
   if (!result) {
     return (
       <div className="panel evaluation-panel">
@@ -114,7 +81,7 @@ export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRu
             <p>
               Run the benchmark suite to generate
               <br />
-              judge friendly KPI proof and evidence
+              grounded benchmark metrics
             </p>
           </div>
           <button type="button" className={`analyze-btn ${loading ? 'loading' : ''}`} onClick={onRunEvaluation} disabled={loading}>
@@ -126,13 +93,7 @@ export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRu
     );
   }
 
-  const outcomeCards = buildOutcomeCards(result);
-  const proofCards = buildProofCards(result);
-  const exports = result.exports ?? {
-    json_report: 'Not available',
-    csv_report: 'Not available',
-    manifest: 'Not available',
-  };
+  const metricCards = buildMetricCards(result);
 
   return (
     <div className="panel evaluation-panel">
@@ -147,31 +108,15 @@ export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRu
       </div>
       <div className="evaluation-body">
         <div className="section-card benchmark-hero-card">
-          <div className="benchmark-hero-topline">Executive Benchmark View</div>
-          <h3>What judges can understand in one scan</h3>
-          <p>
-            This scorecard separates business outcome metrics from engineering proof so the benchmark reads like a product story,
-            not a raw evaluation dump.
-          </p>
+          <div className="benchmark-hero-topline">Benchmark Truth View</div>
+          <h3>Only backend-computed metrics are shown here</h3>
+          <p>This dashboard reports retrieval, grounding, unsupported-claim rate, and workflow outcomes directly from the benchmark runner.</p>
         </div>
 
         <div className="section-card">
-          <h3>Outcome Metrics</h3>
+          <h3>Run Metrics</h3>
           <div className="metrics-row">
-            {outcomeCards.map((card) => (
-              <div key={card.label} className={`metric-chip ${card.tone}`}>
-                <div className="value">{card.value}</div>
-                <div className="label">{card.label}</div>
-                <div className="metric-note">{card.note}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="section-card">
-          <h3>Platform Proof</h3>
-          <div className="metrics-row">
-            {proofCards.map((card) => (
+            {metricCards.map((card) => (
               <div key={card.label} className={`metric-chip ${card.tone}`}>
                 <div className="value">{card.value}</div>
                 <div className="label">{card.label}</div>
@@ -190,13 +135,14 @@ export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRu
             <p>Approved: {result.summary.approved}</p>
             <p>Flagged: {result.summary.flagged}</p>
             <p>Rejected: {result.summary.rejected}</p>
+            <p>p95 latency: {formatSeconds(result.summary.kpis.p95_latency_seconds)}</p>
           </div>
 
           <div className="section-card">
             <h3>Exports</h3>
-            <p>JSON: {exports.json_report}</p>
-            <p>CSV: {exports.csv_report}</p>
-            <p>Manifest: {exports.manifest}</p>
+            <p>JSON: {result.exports.json_report}</p>
+            <p>CSV: {result.exports.csv_report}</p>
+            <p>Manifest: {result.exports.manifest}</p>
           </div>
 
           <div className="section-card">
@@ -204,7 +150,7 @@ export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRu
             <ul>
               {Object.entries(result.summary.artifact_type_breakdown).map(([artifact, data]) => (
                 <li key={artifact}>
-                  {artifact}: {data.count} sample{data.count === 1 ? '' : 's'} with {data.avg_review_time_reduction}% average speed gain
+                  {artifact}: {data.count} sample{data.count === 1 ? '' : 's'} with {data.avg_grounded_accuracy}% average grounded accuracy
                 </li>
               ))}
             </ul>
@@ -215,38 +161,10 @@ export function EvaluationDashboard({ result, selectedCaseId, onSelectCase, onRu
             <ul>
               {Object.entries(result.summary.oracle_product_breakdown).map(([product, data]) => (
                 <li key={product}>
-                  {product}: {data.count} sample{data.count === 1 ? '' : 's'} with {data.avg_grounding}% average grounding
+                  {product}: {data.count} sample{data.count === 1 ? '' : 's'} with {data.avg_grounded_accuracy}% average grounded accuracy
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        <div className="section-card">
-          <h3>Case Evidence</h3>
-          <div className="evaluation-sample-grid">
-            {result.sampleResults.map((sample) => (
-              <button
-                key={sample.caseId}
-                type="button"
-                className={`batch-result-card ${selectedCaseId === sample.caseId ? 'active' : ''}`}
-                onClick={() => onSelectCase(sample.caseId)}
-              >
-                <div className="batch-result-card-header">
-                  <strong>{sample.analysisItem.label}</strong>
-                  <span className={`status-pill ${sample.finalStatus}`}>{sample.finalStatus}</span>
-                </div>
-                <div className="batch-result-meta">
-                  <span>{sample.artifactType}</span>
-                  <span>{sample.oracleProduct}</span>
-                </div>
-                <div className="score-row">
-                  <span>Speed {Math.round(sample.reviewTimeReductionPercent)}%</span>
-                  <span>Accuracy {sample.judgeEvaluation.validation.accuracy}</span>
-                  <span>Grounding {sample.judgeEvaluation.validation.oracle_grounding}</span>
-                </div>
-              </button>
-            ))}
           </div>
         </div>
       </div>
